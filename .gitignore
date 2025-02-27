@@ -50,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+bgnet_usl_c_1.pdf
+.vscode
+main.exe
