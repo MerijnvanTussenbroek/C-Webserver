@@ -30,6 +30,6 @@ typedef struct {
     };
 } Token;
 
-Token* tokenizeRequest(char*);
+Token* tokenizeRequest(char* request);
 
 #endif

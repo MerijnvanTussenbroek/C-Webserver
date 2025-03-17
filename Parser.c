@@ -80,8 +80,15 @@ typedef struct {
 } Token;
 
 Token* tokenizeRequest(char* request);
-Token getNextToken(Token* tokenizeRequest);
+void getNextToken();
 char* checkIfInList(char** methods, int numOfMethods, char* element);
+
+Token HTTPMethodParsing();
+Token HTTPURIParsing();
+Token HTTPVersionParsing();
+
+Token* parseManyHeaders(Token* tokens);
+Token parseBody (Token* tokens);
 
 char* input;
 Token currentToken;
@@ -96,20 +103,21 @@ Token* tokenizeRequest(char* request)
 
     Token tokenizedRequest[100];
 
-    for(int i = 0; i < 100; i++)
-    {
-        tokenizedRequest[i] = getNextToken(tokenizedRequest);
-        if(tokenizedRequest[i].type == TOKEN_END)
-        {
-            break;
-        }
-    }
+    tokenizedRequest[0] = HTTPMethodParsing();
+    getNextToken();
+    tokenizedRequest[1] = HTTPURIParsing();    
+    getNextToken();
+    tokenizedRequest[2] = HTTPVersionParsing();
+    getNextToken();
+    parseManyHeaders(tokenizedRequest);
+    getNextToken();
+    parseBody(tokenizedRequest);
 
     free(input);
     return tokenizedRequest;
 }
 
-Token getNextToken(Token* tokenizeRequest)
+void getNextToken()
 {
     while(*input == ' ') input++;
 
@@ -117,7 +125,10 @@ Token getNextToken(Token* tokenizeRequest)
     {
         input += 2;
     }
+}
 
+Token HTTPMethodParsing()
+{
     //HTTP method parsing
     if(!(strcmp(checkIfInList(methods, 8, input), "NEGATIVE")) == 0)
     {
@@ -128,31 +139,114 @@ Token getNextToken(Token* tokenizeRequest)
         strncpy(t.method, method, strlen(method));
         return t;
     }
+}
 
+Token HTTPURIParsing()
+{
     //HTTP Request-URI parsing
     //Absolute URI
     if(!(strcmp(checkIfInList(schemes, 2, input), "NEGATIVE")) == 0)
     {
+        char* beginning = input;
+        Token t;
+        t.type = TOKEN_URI;
+        strcpy(t.fieldName, "Request-URI");
+        while(*input != ' '){
+            input++;
+        }
+        input--;
+        strncpy(t.fieldValue, beginning, input - beginning);
 
+        return t;
     }
 
     // Asterisk URI
+    if(*input == '*'){
+        Token t;
+        t.type = TOKEN_URI;
+        strcpy(t.fieldName, "Request-URI");
+        strcpy(t.fieldValue, "*");
 
-
-    // Path
-    
-
-    //HTTP version parsing
-    if(((isdigit(*input)) && (*(input + 1) == '.') && (isdigit(*input))))
-    {
-        input += 3;
-        //return (Token){TOKEN_VERSION, ((*input - '0') + (((*(input + 1)) - '0')/10)), "", ""};
+        return t;
     }
 
+    // Path
+    if(*input == '/'){
+        char* beginning = input;
+        Token t;
+        t.type= TOKEN_URI;
+        strcpy(t.fieldName, "Request-URI");
+        while(*input != ' '){
+            input++;
+        }
+        input--;
+        strncpy(t.fieldValue, beginning, input - beginning);
+
+        return t;
+    }
+}
+
+Token HTTPVersionParsing()
+{
+    //HTTP version parsing
+    if(((isdigit(*input)) && (*(input + 1) == '.') && (isdigit(*(input + 2)))))
+    {
+        Token t;
+        t.type = TOKEN_VERSION;
+        t.integerValue = ((*(input) - '0') + (((*(input + 2)) - '0')/10));
+        input += 3;
+        return t;
+    }
+}
+
+Token* parseManyHeaders(Token* tokens){
+    int i = 3;
+
+    while(!(*input == 0x0D && *(input + 1) == 0x0A && *(input + 2) == 0x0D && *(input + 3) == 0x0A))
+    {
+        Token t;
+        t.type = TOKEN_HEADER_FIELD;
+        char* beginning = input;
+        while(*input != ':')
+        {
+            input++;
+        }
+        strncpy(t.fieldName, beginning, input - 1 - beginning);
+        beginning = input;
+        while(!(*input == 0x0D && *(input + 1) == 0x0A))
+        {
+            input++;
+        }
+        strncpy(t.fieldValue, beginning, input - 1 - beginning);
+        input += 1;
+        tokens[i] = t;
+        i++;
+    }
+}
+
+Token parseBody(Token* tokens){
     Token t;
-    t.type = TOKEN_END;
-    t.integerValue = 0;
-    return t;
+    Token length;
+    length.type = TOKEN_END;
+    for(int i = 0; i < 100; i++){
+        if(tokens[i].type == TOKEN_HEADER_FIELD)
+        {
+            if(strcmp(tokens[i].fieldName, "Content-Length")){
+                Token length = tokens[i];
+                break;
+            }
+        }
+    }
+
+    if(length.type == TOKEN_END)
+    {
+        t.type = TOKEN_END;
+        return t;
+    }
+    else
+    {
+        char* unparsedLength = length.fieldValue;
+    }
 }
 
 char* checkIfInList(char** methods, int numOfMethods, char* element)
