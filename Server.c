@@ -7,7 +7,7 @@
 #include "Parser.c"
 
 int main(int argc, char *argv[]);
-char buffer[2048];
+char buffer[4096];
 
 int main(int argc, char *argv[])
 {

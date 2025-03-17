@@ -59,52 +59,82 @@ typedef enum{
     TOKEN_VERSION,
     TOKEN_REQUESTI_URI,
     TOKEN_HEADER_FIELD,
-
+    TOKEN_BODY,
 
     TOKEN_END
 } myTokenType;
 
 typedef struct {
     myTokenType type;
-    double integerValue;
+
+    union{
+        double integerValue;
     char method[8];
+    struct{
+        char fieldName[64];
+        char fieldValue[256];
+    };
     char path[100];
+    unsigned char *body;
+    };
 } Token;
 
 Token* tokenizeRequest(char* request);
-Token getNextToken();
-char* checkIfInList(char** methods, char* element);
+Token getNextToken(Token* tokenizeRequest);
+char* checkIfInList(char** methods, int numOfMethods, char* element);
 
 char* input;
 Token currentToken;
-char* methods[] = {"OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"};
 
-Token* tokenizeRequest(char* request){
-    input = malloc(2048);
+char* methods[] = {"OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"};
+char* schemes[] = {"HTTP", "HTTPS"};
+
+Token* tokenizeRequest(char* request)
+{
+    input = malloc(4096);
     input = request;
 
     Token tokenizedRequest[100];
 
-    for(int i = 0; i < 100; i++){
-        tokenizedRequest[i] = getNextToken();
+    for(int i = 0; i < 100; i++)
+    {
+        tokenizedRequest[i] = getNextToken(tokenizedRequest);
+        if(tokenizedRequest[i].type == TOKEN_END)
+        {
+            break;
+        }
     }
 
     free(input);
     return tokenizedRequest;
 }
 
-Token getNextToken(){
-    while(*input == ' '){input++;};
+Token getNextToken(Token* tokenizeRequest)
+{
+    while(*input == ' ') input++;
+
+    if(*input == 0x0D && *(input + 1) == 0x0A)
+    {
+        input += 2;
+    }
 
     //HTTP method parsing
-    if(!(strcmp(checkIfInList(methods, input), "NEGATIVE"))){
-        input += strlen(checkIfInList(methods, input));
-        return (Token){TOKEN_METHOD, 0, checkIfInList(methods, input), ""};
+    if(!(strcmp(checkIfInList(methods, 8, input), "NEGATIVE")) == 0)
+    {
+        char* method = checkIfInList(methods, 8, input);
+        input += strlen(method);
+        Token t;
+        t.type = TOKEN_METHOD;
+        strncpy(t.method, method, strlen(method));
+        return t;
     }
 
     //HTTP Request-URI parsing
     //Absolute URI
+    if(!(strcmp(checkIfInList(schemes, 2, input), "NEGATIVE")) == 0)
+    {
 
+    }
 
     // Asterisk URI
 
@@ -113,24 +143,26 @@ Token getNextToken(){
     
 
     //HTTP version parsing
-    if(((isdigit(*input)) && (*input + 1 == '.') && (isdigit(*input)))){
+    if(((isdigit(*input)) && (*(input + 1) == '.') && (isdigit(*input))))
+    {
         input += 3;
-        return (Token){TOKEN_VERSION, ((*input - '0') + (((*input + 1) - '0')/10)), "", ""};
-    }
-    
-    if(input == '%x0D' && input + 1 == '%x0A'){
-
+        //return (Token){TOKEN_VERSION, ((*input - '0') + (((*(input + 1)) - '0')/10)), "", ""};
     }
 
-    return (Token){TOKEN_END, 0, "", ""};
+    Token t;
+    t.type = TOKEN_END;
+    t.integerValue = 0;
+    return t;
 }
 
-char* checkIfInList(char** methods, char* element){
-    int x = sizeof(methods) / sizeof(methods[0]);
-    for(int i = 0; i < x; i++){
-        if(strcmp(methods[i], element)){
+char* checkIfInList(char** methods, int numOfMethods, char* element)
+{
+
+    for(int i = 0; i < numOfMethods; i++){
+        if(strcmp(methods[i], element) == 0){
             return methods[i];
         }
     }
+
     return "NEGATIVE";
 }
