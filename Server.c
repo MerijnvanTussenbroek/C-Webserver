@@ -4,8 +4,10 @@
 #pragma comment(lib, "ws2_32.lib")
 
 #include "ListeningSocket.c"
+#include "Parser.c"
 
 int main(int argc, char *argv[]);
+char buffer[2048];
 
 int main(int argc, char *argv[])
 {

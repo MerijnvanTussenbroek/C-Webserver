@@ -19,7 +19,7 @@ SOCKET InitializeListeningSocket(struct sockaddr_in server){
 
         WSACleanup();
 
-        return 1;
+        return INVALID_SOCKET;
     }
 
     if((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
@@ -29,7 +29,7 @@ SOCKET InitializeListeningSocket(struct sockaddr_in server){
         closesocket(s);
         WSACleanup();
 
-        return 1;
+        return INVALID_SOCKET;
     }
 
     if((connect(s, (struct sockaddr*)&server, sizeof(server)) < 0))
@@ -39,7 +39,7 @@ SOCKET InitializeListeningSocket(struct sockaddr_in server){
         closesocket(s);
         WSACleanup();
 
-        return 1;
+        return INVALID_SOCKET;
     }
 
     return s;
@@ -55,17 +55,20 @@ void BindListeningSocket(struct sockaddr_in server , SOCKET s)
         closesocket(s);
         WSACleanup();
 
-        return 1;
+        return;
     }
 
     listen(s, 3);
+    return;
 }
 
 SOCKET InitializeAcceptingSocket(struct sockaddr_in server, SOCKET s)
 {
 
+    return s;
 }
 
 void CloseListeningSocket(SOCKET s){
     closesocket(s);
+    return;
 }
