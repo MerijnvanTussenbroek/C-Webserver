@@ -52,16 +52,16 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 
 #include <string.h>
 
+#include <stdlib.h>
+
 typedef enum{
+    TOKEN_END,
     TOKEN_BEGIN,
     TOKEN_METHOD,
     TOKEN_URI,
     TOKEN_VERSION,
-    TOKEN_REQUESTI_URI,
     TOKEN_HEADER_FIELD,
-    TOKEN_BODY,
-
-    TOKEN_END
+    TOKEN_BODY
 } myTokenType;
 
 typedef struct {
@@ -83,6 +83,8 @@ Token* tokenizeRequest(char* request);
 void getNextToken();
 char* checkIfInList(char** methods, int numOfMethods, char* element);
 
+void somethingWentWrong(char* location);
+
 Token HTTPMethodParsing();
 Token HTTPURIParsing();
 Token HTTPVersionParsing();
@@ -90,18 +92,19 @@ Token HTTPVersionParsing();
 Token* parseManyHeaders(Token* tokens);
 Token parseBody (Token* tokens);
 
+void printToken(Token token);
+
 char* input;
 Token currentToken;
 
-char* methods[] = {"OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"};
+char* listOfMethods[] = {"OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"};
 char* schemes[] = {"HTTP", "HTTPS"};
 
 Token* tokenizeRequest(char* request)
 {
-    input = malloc(4096);
     input = request;
 
-    Token tokenizedRequest[100];
+    Token* tokenizedRequest = malloc(100 * sizeof(Token));
 
     tokenizedRequest[0] = HTTPMethodParsing();
     getNextToken();
@@ -113,15 +116,45 @@ Token* tokenizeRequest(char* request)
     getNextToken();
     parseBody(tokenizedRequest);
 
-    free(input);
     return tokenizedRequest;
+}
+
+void printToken(Token token)
+{
+    switch (token.type)
+    {
+    case TOKEN_BEGIN:
+        printf("Begin \n");
+        break;
+    case TOKEN_METHOD:
+        printf("Method: %s \n", token.method);
+        break;
+    case TOKEN_URI:
+        printf("Uri: %s \n", token.path);
+        break;
+    case TOKEN_VERSION:
+        printf("Version: %d \n", token.integerValue);
+        break;
+    case TOKEN_HEADER_FIELD:
+        printf("Header-fields %s : %s \n", token.fieldName, token.fieldValue);
+        break;
+    case TOKEN_BODY:
+        printf("Body: %s \n", token.body);
+        break;
+    case TOKEN_END:
+        printf("end \n");
+        break;
+        printf("No token");
+    default:
+        break;
+    }
 }
 
 void getNextToken()
 {
     while(*input == ' ') input++;
 
-    if(*input == 0x0D && *(input + 1) == 0x0A)
+    if(*input == '\r' && *(input + 1) == '\n')
     {
         input += 2;
     }
@@ -130,101 +163,109 @@ void getNextToken()
 Token HTTPMethodParsing()
 {
     //HTTP method parsing
-    if(!(strcmp(checkIfInList(methods, 8, input), "NEGATIVE")) == 0)
+    Token t;
+    if(!(strcmp(checkIfInList(listOfMethods, 8, input), "NEGATIVE")) == 0)
     {
-        char* method = checkIfInList(methods, 8, input);
+        char* method = checkIfInList(listOfMethods, 8, input);
         input += strlen(method);
-        Token t;
         t.type = TOKEN_METHOD;
-        strncpy(t.method, method, strlen(method));
-        return t;
+        strncpy(t.method, method, sizeof(t.method) - 1);
+        t.method[sizeof(t.method) - 1] = '\0';
+    }else
+    {
+        somethingWentWrong("Method parsing");
+        t.type = TOKEN_END;
     }
+
+    return t;
 }
 
 Token HTTPURIParsing()
 {
     //HTTP Request-URI parsing
     //Absolute URI
-    if(!(strcmp(checkIfInList(schemes, 2, input), "NEGATIVE")) == 0)
+    Token t;
+    t.type = TOKEN_URI;
+
+    char* beginning = input;
+    while(*input != ' ' && *input != '\r' && *input != '\n')
     {
-        char* beginning = input;
-        Token t;
-        t.type = TOKEN_URI;
-        strcpy(t.fieldName, "Request-URI");
-        while(*input != ' '){
-            input++;
-        }
-        input--;
-        strncpy(t.fieldValue, beginning, input - beginning);
-
-        return t;
+        input++;
     }
 
-    // Asterisk URI
-    if(*input == '*'){
-        Token t;
-        t.type = TOKEN_URI;
-        strcpy(t.fieldName, "Request-URI");
-        strcpy(t.fieldValue, "*");
+    size_t length = input - beginning;
 
-        return t;
-    }
+    if(length >= sizeof(t.path)) length = sizeof(t.path) - 1;
 
-    // Path
-    if(*input == '/'){
-        char* beginning = input;
-        Token t;
-        t.type= TOKEN_URI;
-        strcpy(t.fieldName, "Request-URI");
-        while(*input != ' '){
-            input++;
-        }
-        input--;
-        strncpy(t.fieldValue, beginning, input - beginning);
+    strncpy(t.path, beginning, length);
 
-        return t;
-    }
+    t.path[length] = '\0';
+
+    return t;
 }
 
 Token HTTPVersionParsing()
 {
     //HTTP version parsing
-    if(((isdigit(*input)) && (*(input + 1) == '.') && (isdigit(*(input + 2)))))
+    Token t;
+    if(strncmp(input, "HTTP/", 5) == 0 && isdigit(*(input + 5)) && *(input + 6) == '.' && isdigit(*(input + 7))) 
     {
-        Token t;
         t.type = TOKEN_VERSION;
-        t.integerValue = ((*(input) - '0') + (((*(input + 2)) - '0')/10));
-        input += 3;
-        return t;
+        t.integerValue = ((*(input + 5) - '0') + ((*(input + 7) - '0') / 10.0));
+        input += 8;
     }
+    else{
+        somethingWentWrong("Version parsing");
+        t.type = TOKEN_END;
+    }
+
+    return t;
 }
 
 Token* parseManyHeaders(Token* tokens){
     int i = 3;
 
-    while(!(*input == 0x0D && *(input + 1) == 0x0A && *(input + 2) == 0x0D && *(input + 3) == 0x0A))
+    while(!(*input == '\r' && *(input + 1) == '\n' && *(input + 2) == '\r' && *(input + 3) == '\n'))
     {
+        getNextToken();
+
         Token t;
         t.type = TOKEN_HEADER_FIELD;
+
+
         char* beginning = input;
+
         while(*input != ':')
         {
             input++;
         }
-        strncpy(t.fieldName, beginning, input - 1 - beginning);
+
+
+
+        size_t length = input - beginning;
+        if(length >= sizeof(t.fieldName)) length = sizeof(t.fieldName) - 1;
+        strncpy(t.fieldName, beginning, length);
+        t.fieldName[length] = '\0';
+
         beginning = input;
-        while(!(*input == 0x0D && *(input + 1) == 0x0A))
+        while(!(*input == '\r' && *(input + 1) == '\n'))
         {
             input++;
         }
-        strncpy(t.fieldValue, beginning, input - 1 - beginning);
-        input += 1;
+
+
+        length = input - beginning;
+        if(length >= sizeof(t.fieldValue)) length = sizeof(t.fieldValue) - 1;
+        strncpy(t.fieldValue, beginning, length);
         tokens[i] = t;
         i++;
     }
+
+    return tokens;
 }
 
 Token parseBody(Token* tokens){
+
     Token t;
     Token length;
     length.type = TOKEN_END;
@@ -241,22 +282,38 @@ Token parseBody(Token* tokens){
     if(length.type == TOKEN_END)
     {
         t.type = TOKEN_END;
-        return t;
     }
     else
     {
         char* unparsedLength = length.fieldValue;
+        long parsedLength = strtol(unparsedLength, NULL, 10);
+        Token t;
+        t.type = TOKEN_BODY;
+        t.body = malloc(parsedLength + 1);
+        memcpy(t.body, input, parsedLength);
+        t.body[parsedLength] = '\0';
+        input += parsedLength;
     }
+
+    return t;
 }
 
 char* checkIfInList(char** methods, int numOfMethods, char* element)
 {
 
     for(int i = 0; i < numOfMethods; i++){
-        if(strcmp(methods[i], element) == 0){
+        int length = strlen(methods[i]);
+        if(strncmp(methods[i], element, length) == 0){
             return methods[i];
         }
     }
 
     return "NEGATIVE";
+}
+
+void somethingWentWrong(char* location)
+{
+    printf("Something went wrong \n");
+    printf("%s", location);
+    getchar();
 }
