@@ -3,24 +3,16 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-void initializeListeningSocket(struct sockaddr_in server, SOCKET s);
+SOCKET initializeListeningSocket(struct sockaddr_in server);
 void bindListeningSocket(struct sockaddr_in server, SOCKET s);
-void initializeAcceptingSocket(struct sockaddr_in server, SOCKET acceptingSocket, SOCKET listeningSocket);
+SOCKET initializeAcceptingSocket(struct sockaddr_in server, SOCKET listeningSocket);
 void closeListeningSocket(SOCKET s);
 void closeAcceptingSocket(SOCKET s);
 
-void initializeListeningSocket(struct sockaddr_in server, SOCKET s){
+SOCKET initializeListeningSocket(struct sockaddr_in server){
 
-    WSADATA wsa;
+    SOCKET s;
 
-    if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
-    {
-        printf("\nWSA Startup failed");
-        s = INVALID_SOCKET;
-        WSACleanup();
-
-        return;
-    }
 
     if((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
@@ -29,20 +21,10 @@ void initializeListeningSocket(struct sockaddr_in server, SOCKET s){
         closesocket(s);
         WSACleanup();
 
-        return;
+        return INVALID_SOCKET;
     }
 
-    if((connect(s, (struct sockaddr*)&server, sizeof(server)) < 0))
-    {
-        printf("\nMaking the connection has failed");
-
-        closesocket(s);
-        WSACleanup();
-
-        return;
-    }
-
-    return;
+    return s;
 }
 
 void bindListeningSocket(struct sockaddr_in server , SOCKET s)
@@ -62,10 +44,15 @@ void bindListeningSocket(struct sockaddr_in server , SOCKET s)
     return;
 }
 
-void initializeAcceptingSocket(struct sockaddr_in server, SOCKET acceptingSocket, SOCKET listeningSocket)
+SOCKET initializeAcceptingSocket(struct sockaddr_in client, SOCKET listeningSocket)
 {
+    SOCKET s;
 
-    return;
+    int c = sizeof(struct sockaddr_in);
+
+    s = accept(listeningSocket, (struct sockaddr *)&client, &c);
+
+    return s;
 }
 
 void closeListeningSocket(SOCKET s){

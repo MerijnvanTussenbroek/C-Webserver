@@ -13,35 +13,43 @@ int main(int argc, char *argv[])
 {
     SOCKET listeningSocket;
 
-    struct sockaddr_in server;
+    struct sockaddr_in server, client;
 
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( 8888 );
 
-    getchar();
+    WSADATA wsa;
 
-    initializeListeningSocket(server, listeningSocket);
+    if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
+    {
+        printf("\nWSA Startup failed");
 
-    if(listeningSocket == INVALID_SOCKET){
+        WSACleanup();
+
         return 1;
     }
 
-    bindListeningSocket(server, listeningSocket);
+    listeningSocket = initializeListeningSocket(server);
 
-    getchar();
+    bindListeningSocket(server, listeningSocket);
 
     SOCKET acceptingSocket;
 
-    initializeAcceptingSocket(server, acceptingSocket, listeningSocket);
+    acceptingSocket = initializeAcceptingSocket(client, listeningSocket);
+
+    if(acceptingSocket == INVALID_SOCKET)
+    {
+        printf("\naccepting failed");
+
+        WSACleanup();
+    }
 
     getchar();
 
     closeListeningSocket(listeningSocket);
     closeAcceptingSocket(acceptingSocket);
     WSACleanup();
-
-    getchar();
 
     return 0;
 }
