@@ -3,16 +3,16 @@
 
 #include <string.h>
 
+#include <stdlib.h>
+
 typedef enum{
+    TOKEN_END,
     TOKEN_BEGIN,
     TOKEN_METHOD,
     TOKEN_URI,
     TOKEN_VERSION,
-    TOKEN_REQUESTI_URI,
     TOKEN_HEADER_FIELD,
-    TOKEN_BODY,
-
-    TOKEN_END
+    TOKEN_BODY
 } myTokenType;
 
 typedef struct {

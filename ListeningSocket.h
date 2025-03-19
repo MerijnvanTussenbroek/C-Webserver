@@ -4,8 +4,10 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-SOCKET InitializeListeningSocket(struct sockaddr_in server);
-void BindListeningSocket(struct sockaddr_in server, SOCKET s);
-void CloseListeningSocket(SOCKET s);
+void initializeListeningSocket(struct sockaddr_in server);
+void bindListeningSocket(struct sockaddr_in server, SOCKET s);
+void initializeAcceptingSocket(struct sockaddr_in server, SOCKET acceptingSocket, SOCKET listeningSocket);
+void closeListeningSocket(SOCKET s);
+void closeAcceptingSocket(SOCKET s);
 
 #endif

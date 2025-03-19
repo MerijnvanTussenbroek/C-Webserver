@@ -119,6 +119,7 @@ Token* tokenizeRequest(char* request)
     return tokenizedRequest;
 }
 
+//To print the token if necessary
 void printToken(Token token)
 {
     switch (token.type)
@@ -152,6 +153,7 @@ void printToken(Token token)
 
 void getNextToken()
 {
+    //This is here to skip and spaces or CRLF's
     while(*input == ' ') input++;
 
     if(*input == '\r' && *(input + 1) == '\n')
@@ -164,8 +166,10 @@ Token HTTPMethodParsing()
 {
     //HTTP method parsing
     Token t;
+    //We first check if the method provided is in the list, otherwise we cannot parse it.
     if(!(strcmp(checkIfInList(listOfMethods, 8, input), "NEGATIVE")) == 0)
     {
+        //If it is, we parse.
         char* method = checkIfInList(listOfMethods, 8, input);
         input += strlen(method);
         t.type = TOKEN_METHOD;
@@ -183,7 +187,6 @@ Token HTTPMethodParsing()
 Token HTTPURIParsing()
 {
     //HTTP Request-URI parsing
-    //Absolute URI
     Token t;
     t.type = TOKEN_URI;
 
@@ -208,8 +211,10 @@ Token HTTPVersionParsing()
 {
     //HTTP version parsing
     Token t;
+    //We first see if the input even has a version to parse.
     if(strncmp(input, "HTTP/", 5) == 0 && isdigit(*(input + 5)) && *(input + 6) == '.' && isdigit(*(input + 7))) 
     {
+        //if so, we parse it and increase the input pointer.
         t.type = TOKEN_VERSION;
         t.integerValue = ((*(input + 5) - '0') + ((*(input + 7) - '0') / 10.0));
         input += 8;
@@ -224,14 +229,13 @@ Token HTTPVersionParsing()
 
 Token* parseManyHeaders(Token* tokens){
     int i = 3;
-
+    //We keep trying to parse headers until we come to a CRLF CRLF, which means that there are no more headers to parse.
     while(!(*input == '\r' && *(input + 1) == '\n' && *(input + 2) == '\r' && *(input + 3) == '\n'))
     {
         getNextToken();
-
+        //we first parse the name of the header.
         Token t;
         t.type = TOKEN_HEADER_FIELD;
-
 
         char* beginning = input;
 
@@ -240,20 +244,19 @@ Token* parseManyHeaders(Token* tokens){
             input++;
         }
 
-
-
         size_t length = input - beginning;
         if(length >= sizeof(t.fieldName)) length = sizeof(t.fieldName) - 1;
         strncpy(t.fieldName, beginning, length);
         t.fieldName[length] = '\0';
 
+        //then we parse the body
         beginning = input;
         while(!(*input == '\r' && *(input + 1) == '\n'))
         {
             input++;
         }
 
-
+        //afterwards, we copy it all, put the token into the list and increase i
         length = input - beginning;
         if(length >= sizeof(t.fieldValue)) length = sizeof(t.fieldValue) - 1;
         strncpy(t.fieldValue, beginning, length);
@@ -265,10 +268,11 @@ Token* parseManyHeaders(Token* tokens){
 }
 
 Token parseBody(Token* tokens){
-
+    //parses the body token if it's there.
     Token t;
     Token length;
     length.type = TOKEN_END;
+    //We first search for the token containing the content-length. If it's not there, that means there's no body to parse.
     for(int i = 0; i < 100; i++){
         if(tokens[i].type == TOKEN_HEADER_FIELD)
         {
@@ -285,6 +289,7 @@ Token parseBody(Token* tokens){
     }
     else
     {
+        //parse the body into the token
         char* unparsedLength = length.fieldValue;
         long parsedLength = strtol(unparsedLength, NULL, 10);
         Token t;

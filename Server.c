@@ -11,45 +11,37 @@ char buffer[4096];
 
 int main(int argc, char *argv[])
 {
+    SOCKET listeningSocket;
 
-    char* request = "GET /index.html HTTP/1.1\r\n"
-                    "Host: www.example.com\r\n"
-                    "User-Agent: Mozilla/5.0\r\n"
-                    "Accept: text/html\r\n"
-                    "\r\n";
+    struct sockaddr_in server;
 
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( 8888 );
 
-    printf("begin tokenizing \n");
     getchar();
 
-    Token* tokenizedRequest = tokenizeRequest(request);
+    initializeListeningSocket(server, listeningSocket);
 
-    for(int i = 0; i < 100; i ++)
-    {
-        printToken(tokenizedRequest[i]);
+    if(listeningSocket == INVALID_SOCKET){
+        return 1;
     }
 
-    printf("Press enter to leave...");
+    bindListeningSocket(server, listeningSocket);
+
     getchar();
-    
-    //SOCKET ListeningSocket;
 
-    //struct sockaddr_in Server;
+    SOCKET acceptingSocket;
 
-    //Server.sin_family = AF_INET;
-    //Server.sin_addr.s_addr = INADDR_ANY;
-    //Server.sin_port = htons( 8888 );
+    initializeAcceptingSocket(server, acceptingSocket, listeningSocket);
 
-    //ListeningSocket = InitializeListeningSocket(Server);
+    getchar();
 
-    //if(ListeningSocket == INVALID_SOCKET){
-    //    return 1;
-    //}
+    closeListeningSocket(listeningSocket);
+    closeAcceptingSocket(acceptingSocket);
+    WSACleanup();
 
-    //BindListeningSocket(Server, ListeningSocket);
-
-    //CloseListeningSocket(ListeningSocket);
-    //WSACleanup();
+    getchar();
 
     return 0;
 }

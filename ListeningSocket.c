@@ -3,23 +3,23 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-SOCKET InitializeListeningSocket(struct sockaddr_in server);
-void BindListeningSocket(struct sockaddr_in server, SOCKET s);
-void CloseListeningSocket(SOCKET s);
+void initializeListeningSocket(struct sockaddr_in server, SOCKET s);
+void bindListeningSocket(struct sockaddr_in server, SOCKET s);
+void initializeAcceptingSocket(struct sockaddr_in server, SOCKET acceptingSocket, SOCKET listeningSocket);
+void closeListeningSocket(SOCKET s);
+void closeAcceptingSocket(SOCKET s);
 
-SOCKET InitializeListeningSocket(struct sockaddr_in server){
+void initializeListeningSocket(struct sockaddr_in server, SOCKET s){
 
     WSADATA wsa;
-
-    SOCKET s;
 
     if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
     {
         printf("\nWSA Startup failed");
-
+        s = INVALID_SOCKET;
         WSACleanup();
 
-        return INVALID_SOCKET;
+        return;
     }
 
     if((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
@@ -29,7 +29,7 @@ SOCKET InitializeListeningSocket(struct sockaddr_in server){
         closesocket(s);
         WSACleanup();
 
-        return INVALID_SOCKET;
+        return;
     }
 
     if((connect(s, (struct sockaddr*)&server, sizeof(server)) < 0))
@@ -39,13 +39,13 @@ SOCKET InitializeListeningSocket(struct sockaddr_in server){
         closesocket(s);
         WSACleanup();
 
-        return INVALID_SOCKET;
+        return;
     }
 
-    return s;
+    return;
 }
 
-void BindListeningSocket(struct sockaddr_in server , SOCKET s)
+void bindListeningSocket(struct sockaddr_in server , SOCKET s)
 {
 
     if((bind(s, (struct sockaddr*)&server, sizeof(server))) == SOCKET_ERROR)
@@ -62,13 +62,18 @@ void BindListeningSocket(struct sockaddr_in server , SOCKET s)
     return;
 }
 
-SOCKET InitializeAcceptingSocket(struct sockaddr_in server, SOCKET s)
+void initializeAcceptingSocket(struct sockaddr_in server, SOCKET acceptingSocket, SOCKET listeningSocket)
 {
 
-    return s;
+    return;
 }
 
-void CloseListeningSocket(SOCKET s){
+void closeListeningSocket(SOCKET s){
+    closesocket(s);
+    return;
+}
+
+void closeAcceptingSocket(SOCKET s){
     closesocket(s);
     return;
 }
