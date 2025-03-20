@@ -5,6 +5,7 @@
 
 #include "ListeningSocket.c"
 #include "Parser.c"
+#include "FileManager.c"
 
 int main(int argc, char *argv[]);
 char buffer[4096];
