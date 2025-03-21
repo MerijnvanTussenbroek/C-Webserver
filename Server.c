@@ -8,11 +8,19 @@
 #include "FileManager.c"
 
 int main(int argc, char *argv[]);
-char buffer[10000];
+void setupSocket();
 
 int main(int argc, char *argv[])
 {
+    //setupSocket();    
+
+    return 0;
+}
+
+void setupSocket()
+{
     SOCKET listeningSocket;
+    char buffer[4096];
 
     struct sockaddr_in server, client;
 
@@ -28,7 +36,7 @@ int main(int argc, char *argv[])
 
         WSACleanup();
 
-        return 1;
+        return;
     }
 
     listeningSocket = initializeListeningSocket(server);
@@ -37,13 +45,9 @@ int main(int argc, char *argv[])
 
     SOCKET acceptingSocket;
 
-    acceptingSocket = initializeAcceptingSocket(client, listeningSocket);
-
-    if(acceptingSocket == INVALID_SOCKET)
+    while((acceptingSocket = initializeAcceptingSocket(client, listeningSocket)) != INVALID_SOCKET)
     {
-        printf("\naccepting failed");
 
-        WSACleanup();
     }
 
     getchar();
@@ -51,6 +55,4 @@ int main(int argc, char *argv[])
     closeListeningSocket(listeningSocket);
     closeAcceptingSocket(acceptingSocket);
     WSACleanup();
-
-    return 0;
 }

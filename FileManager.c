@@ -1,7 +1,4 @@
 //path to the webserver files
-//C:\Users\merij\Desktop\webserverFiles
-
-// C:\Users\merij\Desktop\webserverFiles\testdoc.txt
 
 #include <stdio.h>
 
@@ -13,6 +10,7 @@ char* openFile(char* path)
 {
     FILE *file;
 
+    //We try to open the file in reading mode
     file = fopen(path, "r");
 
     if(file == NULL)
@@ -22,26 +20,28 @@ char* openFile(char* path)
         return NULL;
     }
 
+    //We get the size of the file
     fseek(file, 0, SEEK_END);
 
     long length = ftell(file);
 
     rewind(file);
 
+    //We make the output and helper char array
     char* fileInput = malloc((length + 1) * sizeof(char));
     char* nextLine = malloc(length * sizeof(char));
 
-    //fgets(fileInput, length, file);
-
+    //We continuously get the next line in the file and concatonate it into the output char array
     while(fgets(nextLine, length, file))
     {
         strcat(fileInput, nextLine);
     }
 
+    //We close off the output with the \0 symbol
     fileInput[length] = '\0';
 
+    //We close the file and free the helper char array
     fclose(file);
-
     free(nextLine);
 
     return fileInput;
