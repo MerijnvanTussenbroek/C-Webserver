@@ -1,7 +1,11 @@
 //path to the webserver files
 //C:\Users\merij\Desktop\webserverFiles
 
+// C:\Users\merij\Desktop\webserverFiles\testdoc.txt
+
 #include <stdio.h>
+
+#include <string.h>
 
 char* openFile(char* path);
 
@@ -14,15 +18,31 @@ char* openFile(char* path)
     if(file == NULL)
     {
         //the file doesn't exist
-        fclose(file);
-        return "NULL";
+        printf("The file doesn't exist.");
+        return NULL;
     }
 
-    char* fileInput = malloc(file->_bufsiz);
+    fseek(file, 0, SEEK_END);
 
-    fgets(fileInput, file->_bufsiz, file);
+    long length = ftell(file);
+
+    rewind(file);
+
+    char* fileInput = malloc((length + 1) * sizeof(char));
+    char* nextLine = malloc(length * sizeof(char));
+
+    //fgets(fileInput, length, file);
+
+    while(fgets(nextLine, length, file))
+    {
+        strcat(fileInput, nextLine);
+    }
+
+    fileInput[length] = '\0';
 
     fclose(file);
+
+    free(nextLine);
 
     return fileInput;
 }

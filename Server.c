@@ -8,7 +8,7 @@
 #include "FileManager.c"
 
 int main(int argc, char *argv[]);
-char buffer[4096];
+char buffer[10000];
 
 int main(int argc, char *argv[])
 {
