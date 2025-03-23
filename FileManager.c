@@ -46,3 +46,8 @@ char* openFile(char* path)
 
     return fileInput;
 }
+
+void deleteFile(char* path)
+{
+    
+}

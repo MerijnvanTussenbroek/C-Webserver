@@ -12,21 +12,8 @@ void setupSocket();
 
 int main(int argc, char *argv[])
 {
-    //setupSocket();    
-
-    return 0;
-}
-
-void setupSocket()
-{
-    SOCKET listeningSocket;
-    char buffer[4096];
-
-    struct sockaddr_in server, client;
-
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons( 8888 );
+    //setupSocket();  
+    struct sockaddr_in server;
 
     WSADATA wsa;
 
@@ -36,8 +23,25 @@ void setupSocket()
 
         WSACleanup();
 
-        return;
+        return 1;
     }
+    
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( 8888 );
+
+    return 0;
+}
+
+void setupSocket(struct sockaddr_in *serverPointer)
+{
+    // define a listening socket and a buffer
+    SOCKET listeningSocket;
+    char buffer[4096];
+
+    struct sockaddr_in client, server;
+
+    server = *serverPointer;
 
     listeningSocket = initializeListeningSocket(server);
 
