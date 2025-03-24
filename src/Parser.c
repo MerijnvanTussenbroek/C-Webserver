@@ -53,6 +53,8 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 #include <string.h>
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
 
 typedef enum{
     TOKEN_END,

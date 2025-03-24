@@ -4,7 +4,7 @@
 #pragma comment(lib, "ws2_32.lib")
 
 #include "ListeningSocket.c"
-#include "Parser.c"
+#include "Parser.h"
 #include "FileManager.c"
 #include "RequestHandler.c"
 
