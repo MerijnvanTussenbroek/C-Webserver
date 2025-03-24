@@ -1,15 +1,8 @@
 #include <stdio.h>
 
 #include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
 
-SOCKET initializeListeningSocket(struct sockaddr_in server);
-void bindListeningSocket(struct sockaddr_in server, SOCKET s);
-SOCKET initializeAcceptingSocket(struct sockaddr_in server, SOCKET listeningSocket);
-void closeListeningSocket(SOCKET s);
-void closeAcceptingSocket(SOCKET s);
-
-SOCKET initializeListeningSocket(struct sockaddr_in server){
+SOCKET initializeListeningSocket(){
 
     SOCKET s;
 
@@ -23,6 +16,8 @@ SOCKET initializeListeningSocket(struct sockaddr_in server){
 
         return INVALID_SOCKET;
     }
+
+    printf("\nSocket Initialization successful");
 
     return s;
 }
@@ -40,6 +35,8 @@ void bindListeningSocket(struct sockaddr_in server , SOCKET s)
         return;
     }
 
+    printf("\nBinding successful");
+
     listen(s, 3);
     return;
 }
@@ -53,17 +50,25 @@ SOCKET initializeAcceptingSocket(struct sockaddr_in client, SOCKET listeningSock
 
     s = accept(listeningSocket, (struct sockaddr *)&client, &c);
 
+    printf("\n accepting socket initialized");
+
     return s;
 }
 
 //closes the sockets
 //naming was done for convention
 void closeListeningSocket(SOCKET s){
+
+    printf("\n closing listening socket");
     closesocket(s);
+
     return;
 }
 
 void closeAcceptingSocket(SOCKET s){
+
+    printf("\n closing accepting socket");
     closesocket(s);
+
     return;
 }

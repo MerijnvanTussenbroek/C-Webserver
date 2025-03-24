@@ -1,13 +1,11 @@
 //path to the webserver files
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <string.h>
 
-char* openFile(char* path);
-void deleteFile(char* path);
-void postFile(char* path, char* data);
-void putFile(char* path, char* data);
+
 
 char* openFile(char* path)
 {
@@ -19,9 +17,11 @@ char* openFile(char* path)
     if(file == NULL)
     {
         //the file doesn't exist
-        printf("The file doesn't exist.");
+        printf("\nThe file doesn't exist.");
         return NULL;
     }
+
+    printf("\nFile opened");
 
     //We get the size of the file
     fseek(file, 0, SEEK_END);
@@ -47,21 +47,34 @@ char* openFile(char* path)
     fclose(file);
     free(nextLine);
 
+    printf("\nFile read");
+
     return fileInput;
 }
 
 void deleteFile(char* path)
 {
     //this should only be allowed if the user has proper authentication
+    printf("\n deleted file");
     remove(path);
 }
 
 void postFile(char* path, char* data)
 {
+    FILE* file;
+    file = fopen(path, "w");
 
+    fprintf(file, data);
+
+    fclose(file);
 }
 
 void putFile(char* path, char* data)
 {
+    FILE* file;
+    file = fopen(path, "w");
 
+    fprintf(file, data);
+
+    fclose(file);
 }

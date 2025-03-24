@@ -1,15 +1,12 @@
 
-//#include "Parser.c"
+#include "Parser.h"
 
-
-char* processRequest(Token* request);
-Token* findToken(Token* tokens, myTokenType identifier);
-Token* findHeaderToken(Token* tokens, char* identifier);
-
-
+#include <stdio.h>
 
 char* processRequest(Token* request)
 {
+    printf("\n begin processing request");
+
     char* method = request[0].method;
     char* response = malloc(4096);
     

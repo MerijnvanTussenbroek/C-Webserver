@@ -1,21 +1,20 @@
 #include <stdio.h>
 
 #include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
 
-#include "ListeningSocket.c"
+#include "ListeningSocket.h"
 #include "Parser.h"
-#include "FileManager.c"
-#include "RequestHandler.c"
+#include "FileManager.h"
+#include "RequestHandler.h"
 
-int main(int argc, char *argv[]);
+int main();
 void setupSocket(struct sockaddr_in *serverpointer);
 
 int size;
 
 // http://localhost:8888/
 
-int main(int argc, char *argv[])
+int main()
 {
     //setupSocket();  
     struct sockaddr_in server;
@@ -55,6 +54,8 @@ void setupSocket(struct sockaddr_in *serverPointer)
     bindListeningSocket(server, listeningSocket);
 
     SOCKET acceptingSocket;
+
+    printf("\nBegin listening");
 
     while((acceptingSocket = initializeAcceptingSocket(client, listeningSocket)) != INVALID_SOCKET)
     {

@@ -56,30 +56,7 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 #include <stdio.h>
 #include <ctype.h>
 
-typedef enum{
-    TOKEN_END,
-    TOKEN_BEGIN,
-    TOKEN_METHOD,
-    TOKEN_URI,
-    TOKEN_VERSION,
-    TOKEN_HEADER_FIELD,
-    TOKEN_BODY
-} myTokenType;
-
-typedef struct {
-    myTokenType type;
-
-    union{
-        double integerValue;
-    char method[8];
-    struct{
-        char fieldName[64];
-        char fieldValue[256];
-    };
-    char path[100];
-    unsigned char *body;
-    };
-} Token;
+#include "Parser.h"
 
 Token* tokenizeRequest(char* request);
 void getNextToken();
@@ -104,6 +81,7 @@ char* schemes[] = {"HTTP", "HTTPS"};
 
 Token* tokenizeRequest(char* request)
 {
+    printf("\n begin tokenising request");
     input = request;
 
     Token* tokenizedRequest = malloc(100 * sizeof(Token));
@@ -138,7 +116,7 @@ void printToken(Token token)
         printf("Uri: %s \n", token.path);
         break;
     case TOKEN_VERSION:
-        printf("Version: %d \n", token.integerValue);
+        printf("Version: %f \n", token.integerValue);
         break;
     case TOKEN_HEADER_FIELD:
         printf("Header-fields %s : %s \n", token.fieldName, token.fieldValue);
@@ -275,13 +253,18 @@ Token parseBody(Token* tokens){
     //parses the body token if it's there.
     Token t;
     Token length;
+
+    char* unparsedLength;
+
+    long parsedLength;
+
     length.type = TOKEN_END;
     //We first search for the token containing the content-length. If it's not there, that means there's no body to parse.
     for(int i = 0; i < 100; i++){
         if(tokens[i].type == TOKEN_HEADER_FIELD)
         {
             if(strcmp(tokens[i].fieldName, "Content-Length")){
-                Token length = tokens[i];
+                length = tokens[i];
                 break;
             }
         }
@@ -294,9 +277,8 @@ Token parseBody(Token* tokens){
     else
     {
         //parse the body into the token
-        char* unparsedLength = length.fieldValue;
-        long parsedLength = strtol(unparsedLength, NULL, 10);
-        Token t;
+        unparsedLength = length.fieldValue;
+        parsedLength = strtol(unparsedLength, NULL, 10);
         t.type = TOKEN_BODY;
         t.body = malloc(parsedLength + 1);
         memcpy(t.body, input, parsedLength);

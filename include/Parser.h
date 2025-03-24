@@ -1,3 +1,4 @@
+#ifndef PARSER_H
 #define PARSER_H
 
 #include <string.h>
@@ -30,3 +31,5 @@ typedef struct {
 } Token;
 
 Token* tokenizeRequest(char* request);
+
+#endif
