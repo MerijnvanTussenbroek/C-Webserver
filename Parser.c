@@ -116,6 +116,8 @@ Token* tokenizeRequest(char* request)
     getNextToken();
     parseBody(tokenizedRequest);
 
+    printf("Parsing done \n");
+
     return tokenizedRequest;
 }
 

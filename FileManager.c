@@ -5,6 +5,9 @@
 #include <string.h>
 
 char* openFile(char* path);
+void deleteFile(char* path);
+void postFile(char* path, char* data);
+void putFile(char* path, char* data);
 
 char* openFile(char* path)
 {
@@ -49,5 +52,16 @@ char* openFile(char* path)
 
 void deleteFile(char* path)
 {
-    
+    //this should only be allowed if the user has proper authentication
+    remove(path);
+}
+
+void postFile(char* path, char* data)
+{
+
+}
+
+void putFile(char* path, char* data)
+{
+
 }
