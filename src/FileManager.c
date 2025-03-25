@@ -55,7 +55,7 @@ char* openFile(char* path)
 void deleteFile(char* path)
 {
     //this should only be allowed if the user has proper authentication
-    printf("\n deleted file");
+    printf("\ndeleted file");
     remove(path);
 }
 

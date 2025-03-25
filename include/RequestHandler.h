@@ -10,4 +10,6 @@ char* processRequest(Token* request);
 Token* findToken(Token* tokens, myTokenType identifier);
 Token* findHeaderToken(Token* tokens, char* identifier);
 
+void OPTIONSRequest();
+
 #endif

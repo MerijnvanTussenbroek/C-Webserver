@@ -5,7 +5,7 @@
 
 char* processRequest(Token* request)
 {
-    printf("\n begin processing request");
+    printf("\nbegin processing request");
 
     char* method = request[0].method;
     char* response = malloc(4096);
@@ -43,11 +43,14 @@ char* processRequest(Token* request)
         
     }
 
-
-
     free(request);
 
     return response;
+}
+
+void OPTIONSRequest()
+{
+
 }
 
 Token* findToken(Token* tokens, myTokenType identifier)

@@ -81,7 +81,7 @@ char* schemes[] = {"HTTP", "HTTPS"};
 
 Token* tokenizeRequest(char* request)
 {
-    printf("\n begin tokenising request");
+    printf("\nbegin tokenising request");
     input = request;
 
     Token* tokenizedRequest = malloc(100 * sizeof(Token));
@@ -96,7 +96,7 @@ Token* tokenizeRequest(char* request)
     getNextToken();
     parseBody(tokenizedRequest);
 
-    printf("Parsing done \n");
+    printf("\nParsing done");
 
     return tokenizedRequest;
 }
@@ -159,7 +159,7 @@ Token HTTPMethodParsing()
         t.method[sizeof(t.method) - 1] = '\0';
     }else
     {
-        somethingWentWrong("Method parsing");
+        somethingWentWrong("\nMethod parsing");
         t.type = TOKEN_END;
     }
 
@@ -202,7 +202,7 @@ Token HTTPVersionParsing()
         input += 8;
     }
     else{
-        somethingWentWrong("Version parsing");
+        somethingWentWrong("\nVersion parsing");
         t.type = TOKEN_END;
     }
 
@@ -304,7 +304,7 @@ char* checkIfInList(char** methods, int numOfMethods, char* element)
 
 void somethingWentWrong(char* location)
 {
-    printf("Something went wrong \n");
+    printf("\nSomething went wrong");
     printf("%s", location);
     getchar();
 }

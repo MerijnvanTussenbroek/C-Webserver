@@ -69,7 +69,7 @@ void setupSocket(struct sockaddr_in *serverPointer)
             if(send(acceptingSocket, response, strlen(response), 0) >= 0)
             {
                 //the reply has been sent
-                printf("Reply has been sent \n");
+                printf("\nReply has been sent");
                 
             }
             else
