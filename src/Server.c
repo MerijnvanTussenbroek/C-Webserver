@@ -36,6 +36,8 @@ int main()
 
     setupSocket(&server);
 
+    WSACleanup();
+
     return 0;
 }
 
@@ -75,6 +77,7 @@ void setupSocket(struct sockaddr_in *serverPointer)
             else
             {
                 //reply could not send
+                printf("\nReply could not be sent");
             }
             free(response);
         }
@@ -88,5 +91,4 @@ void setupSocket(struct sockaddr_in *serverPointer)
 
     closeListeningSocket(listeningSocket);
     closeAcceptingSocket(acceptingSocket);
-    WSACleanup();
 }

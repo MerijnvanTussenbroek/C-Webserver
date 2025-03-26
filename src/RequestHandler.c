@@ -12,35 +12,35 @@ char* processRequest(Token* request)
     
     if(strcmp(method, "OPTIONS") == 0)
     {
-
+        OPTIONSRequest(request, response);
     }
     if(strcmp(method, "GET") == 0)
     {
-
+        GETRequest(request, response);
     }
     if(strcmp(method, "HEAD") == 0)
     {
-        
+        HEADRequest(request, response);
     }
     if(strcmp(method, "POST") == 0)
     {
-        
+        POSTRequest(request, response);
     }
     if(strcmp(method, "PUT") == 0)
     {
-        
+        PUTRequest(request, response);
     }
     if(strcmp(method, "DELETE") == 0)
     {
-        
+        DELETERequest(request, response);
     }
     if(strcmp(method, "TRACE") == 0)
     {
-        
+        TRACERequest(request, response);
     }
     if(strcmp(method, "CONNECT") == 0)
     {
-        
+        CONNECTRequest(request, response);
     }
 
     free(request);
@@ -48,7 +48,42 @@ char* processRequest(Token* request)
     return response;
 }
 
-void OPTIONSRequest()
+void OPTIONSRequest(char* request, char* response)
+{
+
+}
+
+void GETRequest(char* request, char* response)
+{
+
+}
+
+void HEADRequest(char* request, char* response)
+{
+
+}
+
+void POSTRequest(char* request, char* response)
+{
+
+}
+
+void PUTRequest(char* request, char* response)
+{
+
+}
+
+void DELETERequest(char* request, char* response)
+{
+
+}
+
+void TRACERequest(char* request, char* response)
+{
+
+}
+
+void CONNECTRequest(char* request, char* response)
 {
 
 }
