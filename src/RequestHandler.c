@@ -1,3 +1,23 @@
+/*
+
+Response        ::= Status-Line CRLF
+                    *(Header-Field CRLF)
+                    CRLF
+                    [Message-Body]
+
+Status-Line     ::= HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+Status-Code     ::= 3Digit
+Reason-Phrase   ::= *(HTAB / SP / VCHAR / obs-text)
+
+SP      ::= %x20 (a space character)
+HTAB    ::= %x09 (a tab whitespace)
+CRLF    ::= %x0D %x0A (Carriage return + line feed)
+OWS     ::= *(SP / HTAB) (optional white space)
+VCHAR   ::= %x21-7E (visible character)
+OCTET   ::= %x00-ff (any 8-bit byte value)
+
+*/
+
 
 #include "Parser.h"
 
@@ -9,7 +29,7 @@ char* processRequest(Token* request)
 
     char* method = request[0].method;
     char* response = malloc(4096);
-    
+    /*
     if(strcmp(method, "OPTIONS") == 0)
     {
         OPTIONSRequest(request, response);
@@ -42,12 +62,14 @@ char* processRequest(Token* request)
     {
         CONNECTRequest(request, response);
     }
+        */
 
     free(request);
 
     return response;
 }
 
+/*
 void OPTIONSRequest(char* request, char* response)
 {
 
@@ -87,6 +109,7 @@ void CONNECTRequest(char* request, char* response)
 {
 
 }
+*/
 
 Token* findToken(Token* tokens, myTokenType identifier)
 {

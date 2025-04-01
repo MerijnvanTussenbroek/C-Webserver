@@ -65,8 +65,15 @@ void setupSocket(struct sockaddr_in *serverPointer)
         {
             //message recieved
             buffer[size] = '\0';
+            printf("\n\n\n");
             puts(buffer);
             Token* request = tokenizeRequest(buffer);
+
+            for(int i = 0; request[i].type != TOKEN_END ; i++)
+            {
+                printToken(request[i]);
+            }
+
             char* response = processRequest(request);
             if(send(acceptingSocket, response, strlen(response), 0) >= 0)
             {

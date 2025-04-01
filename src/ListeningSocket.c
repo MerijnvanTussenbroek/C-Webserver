@@ -50,7 +50,7 @@ SOCKET initializeAcceptingSocket(struct sockaddr_in client, SOCKET listeningSock
 
     s = accept(listeningSocket, (struct sockaddr *)&client, &c);
 
-    printf("\n accepting socket initialized");
+    printf("\naccepting socket initialized");
 
     return s;
 }
@@ -59,7 +59,7 @@ SOCKET initializeAcceptingSocket(struct sockaddr_in client, SOCKET listeningSock
 //naming was done for convention
 void closeListeningSocket(SOCKET s){
 
-    printf("\n closing listening socket");
+    printf("\nclosing listening socket");
     closesocket(s);
 
     return;
@@ -67,7 +67,7 @@ void closeListeningSocket(SOCKET s){
 
 void closeAcceptingSocket(SOCKET s){
 
-    printf("\n closing accepting socket");
+    printf("\nclosing accepting socket");
     closesocket(s);
 
     return;

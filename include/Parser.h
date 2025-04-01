@@ -32,4 +32,6 @@ typedef struct {
 
 Token* tokenizeRequest(char* request);
 
+void printToken(Token token);
+
 #endif

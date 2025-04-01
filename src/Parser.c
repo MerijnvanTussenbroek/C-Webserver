@@ -31,17 +31,6 @@ ALPHA           ::= "a"..."z" / "A"..."Z"
 DIGIT           ::= "0"..."9"
 HEXDIG          ::= DIGIT / "a"..."f" / "A"..."F"
 
-
-
-Response        ::= Status-Line CRLF
-                    *(Header-Field CRLF)
-                    CRLF
-                    [Message-Body]
-
-Status-Line     ::= HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-Status-Code     ::= 3Digit
-Reason-Phrase   ::= *(HTAB / SP / VCHAR / obs-text)
-
 SP      ::= %x20 (a space character)
 HTAB    ::= %x09 (a tab whitespace)
 CRLF    ::= %x0D %x0A (Carriage return + line feed)
@@ -231,6 +220,8 @@ Token* parseManyHeaders(Token* tokens){
         strncpy(t.fieldName, beginning, length);
         t.fieldName[length] = '\0';
 
+        input++;
+
         //then we parse the body
         beginning = input;
         while(!(*input == '\r' && *(input + 1) == '\n'))
@@ -242,6 +233,7 @@ Token* parseManyHeaders(Token* tokens){
         length = input - beginning;
         if(length >= sizeof(t.fieldValue)) length = sizeof(t.fieldValue) - 1;
         strncpy(t.fieldValue, beginning, length);
+        t.fieldValue[length] = '\0';
         tokens[i] = t;
         i++;
     }
