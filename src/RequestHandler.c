@@ -115,11 +115,9 @@ void GETRequest(Token* request, char* response)
 
     size_t size = strlen(body);
 
-    puts(body);
-
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
+        "Content-Type: text/html\r\n"
         "Content-Length: %zu\r\n"
         "\r\n"
         "%s"

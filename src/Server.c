@@ -79,6 +79,8 @@ void setupSocket(struct sockaddr_in *serverPointer)
             {
                 //the reply has been sent
                 printf("\nReply has been sent");
+
+                printf("\nThe reply:\n %s \n \n", response);
                 
             }
             else
@@ -93,8 +95,12 @@ void setupSocket(struct sockaddr_in *serverPointer)
             //message could not be received
         }
 
+        closesocket(acceptingSocket);
+
         printf("\nBegin listening again\n\n");
     }
+
+    printf("\n Something went wrong, listening has stopped");
 
     getchar();
 

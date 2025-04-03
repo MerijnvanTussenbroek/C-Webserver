@@ -46,6 +46,7 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 #include <ctype.h>
 
 #include "Parser.h"
+#include "RequestHandler.h"
 
 Token* tokenizeRequest(char* request);
 void getNextToken();
@@ -78,10 +79,22 @@ Token* tokenizeRequest(char* request)
     Token* tokenizedRequest = malloc(100 * sizeof(Token));
 
     tokenizedRequest[0] = HTTPMethodParsing();
+    if(tokenizedRequest[0].type == TOKEN_END)
+    {
+
+    }
     getNextToken();
-    tokenizedRequest[1] = HTTPURIParsing();    
+    tokenizedRequest[1] = HTTPURIParsing();  
+    if(tokenizedRequest[1].type == TOKEN_END)
+    {
+        
+    }  
     getNextToken();
     tokenizedRequest[2] = HTTPVersionParsing();
+    if(tokenizedRequest[2].type == TOKEN_END)
+    {
+        
+    }
     getNextToken();
     parseManyHeaders(tokenizedRequest);
     getNextToken();

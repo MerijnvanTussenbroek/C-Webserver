@@ -16,7 +16,8 @@ char* openFile(char* path)
     if(strcmp(path, "/") == 0)
     {
         strcpy(fullPath, standardPath);
-        strcat(fullPath, "index.html");
+        strcat(fullPath, "/index.html");
+        printf("%s", fullPath);
     }
     else
     {
@@ -39,17 +40,20 @@ char* openFile(char* path)
     //We get the size of the file
     fseek(file, 0, SEEK_END);
 
-    long length = ftell(file);
+    size_t length = ftell(file);
 
     rewind(file);
 
     //We make the output and helper char array
     char* fileInput = malloc((length + 1) * sizeof(char));
+    fileInput[0] = '\0';
     char* nextLine = malloc(length * sizeof(char));
 
     //We continuously get the next line in the file and concatonate it into the output char array
     while(fgets(nextLine, length, file))
     {
+        printf("\ngetting data");
+        printf("%s", nextLine);
         strcat(fileInput, nextLine);
     }
 
