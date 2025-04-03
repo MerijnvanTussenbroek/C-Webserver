@@ -12,7 +12,9 @@ Token* findHeaderToken(Token* tokens, char* identifier);
 
 /*
 void OPTIONSRequest(char* request, char* response);
-void GETRequest(char* request, char* response);
+*/
+void GETRequest(Token* request, char* response);
+/*
 void HEADRequest(char* request, char* response);
 void POSTRequest(char* request, char* response);
 void PUTRequest(char* request, char* response);

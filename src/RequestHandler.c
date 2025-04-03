@@ -20,8 +20,11 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 
 
 #include "Parser.h"
+#include "FileManager.h"
 
 #include <stdio.h>
+
+void GETRequest(Token* request, char* response);
 
 char* processRequest(Token* request)
 {
@@ -34,10 +37,12 @@ char* processRequest(Token* request)
     {
         OPTIONSRequest(request, response);
     }
+    */
     if(strcmp(method, "GET") == 0)
     {
         GETRequest(request, response);
     }
+    /*
     if(strcmp(method, "HEAD") == 0)
     {
         HEADRequest(request, response);
@@ -74,12 +79,56 @@ void OPTIONSRequest(char* request, char* response)
 {
 
 }
-
-void GETRequest(char* request, char* response)
+*/
+void GETRequest(Token* request, char* response)
 {
+    Token URI = request[1];
+    Token version = request[2];
 
+    if(version.integerValue != 1.1)
+    {
+        strcpy(response,
+        "HTTP/1.1 505 HTTP Version Not Supported\r\n" 
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 42\r\n"
+        "\r\n"
+        "Error: HTTP version not supported by server."
+        );
+
+        return;
+    }
+    
+    char* body = openFile(URI.path);
+
+    if(body == NULL)
+    {
+        strcpy(response,
+        "HTTP/1.1 404 Not Found\r\n" 
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 19\r\n"
+        "\r\n"
+        "Page not found."
+        );
+    
+        return;
+    }
+
+    size_t size = strlen(body);
+
+    puts(body);
+
+    snprintf(response, 4096,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n"
+        "%s"
+        , size, body
+    );
+
+    return;
 }
-
+/*
 void HEADRequest(char* request, char* response)
 {
 

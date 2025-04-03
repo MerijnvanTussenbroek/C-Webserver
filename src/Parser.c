@@ -62,6 +62,8 @@ Token parseBody (Token* tokens);
 
 void printToken(Token token);
 
+void deleteTokens(Token* tokens);
+
 char* input;
 Token currentToken;
 
@@ -119,6 +121,14 @@ void printToken(Token token)
         printf("No token");
     default:
         break;
+    }
+}
+
+void deleteTokens(Token* tokens)
+{
+    for(int i = 0; tokens[i].type != TOKEN_END; i++)
+    {
+
     }
 }
 

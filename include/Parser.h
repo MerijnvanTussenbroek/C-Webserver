@@ -34,4 +34,6 @@ Token* tokenizeRequest(char* request);
 
 void printToken(Token token);
 
+void deleteTokens(Token* tokens);
+
 #endif

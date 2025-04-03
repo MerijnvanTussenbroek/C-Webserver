@@ -5,14 +5,27 @@
 
 #include <string.h>
 
-
+char* standardPath = "C:/Users/merij/Desktop/webserverFiles";
 
 char* openFile(char* path)
 {
     FILE *file;
 
+    char* fullPath = malloc(200 * sizeof(char));
+
+    if(strcmp(path, "/") == 0)
+    {
+        strcpy(fullPath, standardPath);
+        strcat(fullPath, "index.html");
+    }
+    else
+    {
+        strcpy(fullPath, standardPath);
+        strcat(fullPath, path);
+    }
+
     //We try to open the file in reading mode
-    file = fopen(path, "r");
+    file = fopen(fullPath, "r");
 
     if(file == NULL)
     {
@@ -46,6 +59,7 @@ char* openFile(char* path)
     //We close the file and free the helper char array
     fclose(file);
     free(nextLine);
+    free(fullPath);
 
     printf("\nFile read");
 
@@ -63,6 +77,7 @@ void postFile(char* path, char* data)
 {
     FILE* file;
     file = fopen(path, "w");
+    fseek(file, 0, SEEK_END);
 
     fprintf(file, data);
 
@@ -73,6 +88,7 @@ void putFile(char* path, char* data)
 {
     FILE* file;
     file = fopen(path, "w");
+    fseek(file, 0, SEEK_END);
 
     fprintf(file, data);
 

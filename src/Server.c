@@ -92,6 +92,8 @@ void setupSocket(struct sockaddr_in *serverPointer)
         {
             //message could not be received
         }
+
+        printf("\nBegin listening again\n\n");
     }
 
     getchar();
