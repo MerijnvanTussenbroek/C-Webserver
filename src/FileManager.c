@@ -7,21 +7,23 @@
 
 char* standardPath = "C:/Users/merij/Desktop/webserverFiles";
 
+
+
 char* openFile(char* path)
 {
     FILE *file;
 
     char* fullPath = malloc(200 * sizeof(char));
 
+    strcpy(fullPath, standardPath);
+
     if(strcmp(path, "/") == 0)
     {
-        strcpy(fullPath, standardPath);
         strcat(fullPath, "/index.html");
         printf("%s", fullPath);
     }
     else
     {
-        strcpy(fullPath, standardPath);
         strcat(fullPath, path);
     }
 
@@ -68,6 +70,77 @@ char* openFile(char* path)
     printf("\nFile read");
 
     return fileInput;
+}
+
+char* getFileType(char* path)
+{
+
+    if(strcmp(path, "/") == 0)
+    {
+        char* fileType = malloc(5);
+        fileType[0]= '\0';
+        strcpy(fileType, "html");
+        return fileType;
+    }
+    else
+    {
+        char* input = path;
+        while(*input != '.')
+        {
+            input++;
+        }
+
+        input++;
+
+        char* beginning = input;
+
+        while(*input != '\0')
+        {
+            input++;
+        }
+
+        //input--;
+
+        size_t length = input - beginning;
+
+        char* fileType = malloc((length + 1) * sizeof(char));
+
+        strncpy(fileType, beginning, length);
+
+        fileType[length] = '\0';
+
+        return fileType;
+    }
+}
+
+char* connectFileType(char* type)
+{
+    if(strcmp(type, "html") == 0)
+    {
+        char* type = malloc(11);
+        strcpy(type, "text/html");
+        type[10] = '\0';
+        return type;
+    }
+    if(strcmp(type, "css") == 0)
+    {
+        char* type = malloc(10);
+        strcpy(type, "text/css");
+        type[9] = '\0';
+        return type;
+    }
+    if(strcmp(type, "js") == 0)
+    {
+        char* type = malloc(24);
+        strcpy(type, "application/javascript");
+        type[23] = '\0';
+        return type;
+    }
+
+    char* type = malloc(6);
+    strcpy(type, "error");
+    type[5] = '\0';
+    return type;
 }
 
 void deleteFile(char* path)

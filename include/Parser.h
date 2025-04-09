@@ -31,9 +31,19 @@ typedef struct {
 } Token;
 
 Token* tokenizeRequest(char* request);
+void getNextToken();
+char* checkIfInList(char** methods, int numOfMethods, char* element);
+
+void somethingWentWrong(char* location);
+
+Token HTTPMethodParsing();
+Token HTTPURIParsing();
+Token HTTPVersionParsing();
+
+Token* parseManyHeaders(Token* tokens);
+Token parseBody (Token* tokens);
 
 void printToken(Token token);
 
 void deleteTokens(Token* tokens);
-
 #endif

@@ -18,13 +18,12 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 
 */
 
+#include "RequestHandler.h"
 
 #include "Parser.h"
 #include "FileManager.h"
 
 #include <stdio.h>
-
-void GETRequest(Token* request, char* response);
 
 char* processRequest(Token* request)
 {
@@ -85,6 +84,9 @@ void GETRequest(Token* request, char* response)
     Token URI = request[1];
     Token version = request[2];
 
+    char* fileType = getFileType(URI.path);
+    char* connectedFileType = connectFileType(fileType);
+
     if(version.integerValue != 1.1)
     {
         strcpy(response,
@@ -117,12 +119,15 @@ void GETRequest(Token* request, char* response)
 
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
+        "Content-Type: %s\r\n"
         "Content-Length: %zu\r\n"
         "\r\n"
         "%s"
-        , size, body
+        ,connectedFileType, size, body
     );
+
+    free(fileType);
+    free(connectedFileType);
 
     return;
 }

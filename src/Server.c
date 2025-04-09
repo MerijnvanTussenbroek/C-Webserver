@@ -16,7 +16,7 @@ int size;
 
 int main()
 {
-    //setupSocket();  
+
     struct sockaddr_in server;
 
     WSADATA wsa;
@@ -37,6 +37,8 @@ int main()
     setupSocket(&server);
 
     WSACleanup();
+
+    
 
     return 0;
 }

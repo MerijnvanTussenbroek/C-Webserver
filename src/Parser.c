@@ -48,23 +48,6 @@ OCTET   ::= %x00-ff (any 8-bit byte value)
 #include "Parser.h"
 #include "RequestHandler.h"
 
-Token* tokenizeRequest(char* request);
-void getNextToken();
-char* checkIfInList(char** methods, int numOfMethods, char* element);
-
-void somethingWentWrong(char* location);
-
-Token HTTPMethodParsing();
-Token HTTPURIParsing();
-Token HTTPVersionParsing();
-
-Token* parseManyHeaders(Token* tokens);
-Token parseBody (Token* tokens);
-
-void printToken(Token token);
-
-void deleteTokens(Token* tokens);
-
 char* input;
 Token currentToken;
 
