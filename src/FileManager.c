@@ -113,23 +113,23 @@ char* getFileType(char* path)
     }
 }
 
-char* connectFileType(char* type)
+char* connectFileType(char* fileType)
 {
-    if(strcmp(type, "html") == 0)
+    if(strcmp(fileType, "html") == 0)
     {
         char* type = malloc(11);
         strcpy(type, "text/html");
         type[10] = '\0';
         return type;
     }
-    if(strcmp(type, "css") == 0)
+    if(strcmp(fileType, "css") == 0)
     {
         char* type = malloc(10);
         strcpy(type, "text/css");
         type[9] = '\0';
         return type;
     }
-    if(strcmp(type, "js") == 0)
+    if(strcmp(fileType, "js") == 0)
     {
         char* type = malloc(24);
         strcpy(type, "application/javascript");

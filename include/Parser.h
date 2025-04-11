@@ -41,9 +41,10 @@ Token HTTPURIParsing();
 Token HTTPVersionParsing();
 
 Token* parseManyHeaders(Token* tokens);
-Token parseBody (Token* tokens);
+void parseBody (Token* tokens);
 
 void printToken(Token token);
+char* stringifyToken(Token token);
 
 void deleteTokens(Token* tokens);
 #endif

@@ -61,20 +61,23 @@ Token* tokenizeRequest(char* request)
 
     Token* tokenizedRequest = malloc(100 * sizeof(Token));
 
-    tokenizedRequest[0] = HTTPMethodParsing();
-    if(tokenizedRequest[0].type == TOKEN_END)
+    Token t;
+    t.type = TOKEN_BEGIN;
+    tokenizedRequest[0] = t; 
+    tokenizedRequest[1] = HTTPMethodParsing();
+    if(tokenizedRequest[1].type == TOKEN_END)
     {
 
     }
     getNextToken();
-    tokenizedRequest[1] = HTTPURIParsing();  
-    if(tokenizedRequest[1].type == TOKEN_END)
+    tokenizedRequest[2] = HTTPURIParsing();  
+    if(tokenizedRequest[2].type == TOKEN_END)
     {
         
     }  
     getNextToken();
-    tokenizedRequest[2] = HTTPVersionParsing();
-    if(tokenizedRequest[2].type == TOKEN_END)
+    tokenizedRequest[3] = HTTPVersionParsing();
+    if(tokenizedRequest[3].type == TOKEN_END)
     {
         
     }
@@ -118,6 +121,43 @@ void printToken(Token token)
     default:
         break;
     }
+}
+
+char* stringifyToken(Token token)
+{
+    char* output = malloc(321 * sizeof(char));
+    //int length = 321;
+    switch (token.type)
+    {
+    case TOKEN_BEGIN:
+        output[0] = '\0';
+        break;
+    case TOKEN_METHOD:
+        
+        break;
+    case TOKEN_URI:
+        
+        break;
+    case TOKEN_VERSION:
+        
+        break;
+    case TOKEN_HEADER_FIELD:
+        
+        break;
+    case TOKEN_BODY:
+        
+        break;
+    case TOKEN_END:
+        output[0] = '\0';
+        break;
+    }
+
+    size_t newLength = strlen(output);
+
+    output = realloc(output, newLength + 1);
+    output[newLength] = '\0';
+
+    return output;
 }
 
 void deleteTokens(Token* tokens)
@@ -205,7 +245,7 @@ Token HTTPVersionParsing()
 }
 
 Token* parseManyHeaders(Token* tokens){
-    int i = 3;
+    int i = 4;
     //We keep trying to parse headers until we come to a CRLF CRLF, which means that there are no more headers to parse.
     while(!(*input == '\r' && *(input + 1) == '\n' && *(input + 2) == '\r' && *(input + 3) == '\n'))
     {
@@ -247,7 +287,7 @@ Token* parseManyHeaders(Token* tokens){
     return tokens;
 }
 
-Token parseBody(Token* tokens){
+void parseBody(Token* tokens){
     //parses the body token if it's there.
     Token t;
     Token length;
@@ -284,7 +324,13 @@ Token parseBody(Token* tokens){
         input += parsedLength;
     }
 
-    return t;
+    int i = 0;
+    while(tokens[i].type != TOKEN_END)
+    {
+        i++;
+    }
+
+    tokens[i] = t;
 }
 
 char* checkIfInList(char** methods, int numOfMethods, char* element)

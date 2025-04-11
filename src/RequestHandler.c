@@ -31,17 +31,28 @@ char* processRequest(Token* request)
 
     char* method = request[0].method;
     char* response = malloc(4096);
-    /*
+
+    if(request[2].integerValue != 1.1)
+    {
+        strcpy(response,
+        "HTTP/1.1 505 HTTP Version Not Supported\r\n" 
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 42\r\n"
+        "\r\n"
+        "Error: HTTP version not supported by server."
+        );
+
+        return response;
+    }
+    
     if(strcmp(method, "OPTIONS") == 0)
     {
         OPTIONSRequest(request, response);
     }
-    */
     if(strcmp(method, "GET") == 0)
     {
         GETRequest(request, response);
     }
-    /*
     if(strcmp(method, "HEAD") == 0)
     {
         HEADRequest(request, response);
@@ -66,40 +77,31 @@ char* processRequest(Token* request)
     {
         CONNECTRequest(request, response);
     }
-        */
 
     free(request);
 
     return response;
 }
 
-/*
-void OPTIONSRequest(char* request, char* response)
-{
 
+void OPTIONSRequest(Token* request,char* response)
+{
+    (void)request;
+
+    strcpy(
+        response,
+        "HTTP/1.1 204 No Content\r\n"
+        "Allow: GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE\r\n"
+        "Content-Length: 0\r\n"
+    );
 }
-*/
+
 void GETRequest(Token* request, char* response)
 {
     Token URI = request[1];
-    Token version = request[2];
 
     char* fileType = getFileType(URI.path);
     char* connectedFileType = connectFileType(fileType);
-
-    if(version.integerValue != 1.1)
-    {
-        strcpy(response,
-        "HTTP/1.1 505 HTTP Version Not Supported\r\n" 
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 42\r\n"
-        "\r\n"
-        "Error: HTTP version not supported by server."
-        );
-
-        return;
-    }
-    
     char* body = openFile(URI.path);
 
     if(body == NULL)
@@ -128,40 +130,110 @@ void GETRequest(Token* request, char* response)
 
     free(fileType);
     free(connectedFileType);
+    free(body);
 
     return;
 }
-/*
-void HEADRequest(char* request, char* response)
+
+void HEADRequest(Token* request, char* response)
+{
+    Token URI = request[1];
+
+    char* fileType = getFileType(URI.path);
+    char* connectedFileType = connectFileType(fileType);    
+    char* body = openFile(URI.path);
+
+    if(body == NULL)
+    {
+        strcpy(response,
+        "HTTP/1.1 404 Not Found\r\n" 
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 19\r\n"
+        "\r\n"
+        "Page not found."
+        );
+    
+        return;
+    }
+
+    size_t size = strlen(body);
+
+    snprintf(response, 4096,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: %s\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n"
+        ,connectedFileType, size
+    );
+
+    free(fileType);
+    free(connectedFileType);
+    free(body);
+
+    return; 
+}
+
+void POSTRequest(Token* request, char* response)
 {
 
 }
 
-void POSTRequest(char* request, char* response)
+void PUTRequest(Token* request, char* response)
 {
 
 }
 
-void PUTRequest(char* request, char* response)
+void DELETERequest(Token* request, char* response)
 {
-
+    
 }
 
-void DELETERequest(char* request, char* response)
+void TRACERequest(Token* request, char* response)
 {
+    char* echo = malloc(10000 * sizeof(char));
+    int length = 0;
 
+    for(int i = 0; request[i].type != TOKEN_END; i++)
+    {
+        char* s = stringifyToken(request[i]);
+        strcpy(echo, s);
+        length += strlen(s);
+        free(s);
+    }
+
+    echo[length] = '\0';
+
+    echo = realloc(echo, strlen(echo) + 1);
+
+    snprintf(response, 4096,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: message/http\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n"
+        "%s"
+        ,strlen(echo), echo 
+    );
+
+    free(echo);
+
+    return;
 }
 
-void TRACERequest(char* request, char* response)
+void CONNECTRequest(Token* request, char* response)
 {
+    (void)request;
 
+    strcpy(
+        response,
+        "HTTP/1.1 405 Method Not Allowed\r\n"
+        "Content-Type: text/plain\r\n"
+        "Allow: GET, HEAD, POST, PUT, OPTIONS\r\n"
+        "Content-Length: 23\r\n"
+        "\r\n"
+        "Method CONNECT not allowed"
+    );
 }
 
-void CONNECTRequest(char* request, char* response)
-{
-
-}
-*/
 
 Token* findToken(Token* tokens, myTokenType identifier)
 {
