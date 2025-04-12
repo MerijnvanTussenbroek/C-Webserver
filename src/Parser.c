@@ -126,26 +126,43 @@ void printToken(Token token)
 char* stringifyToken(Token token)
 {
     char* output = malloc(321 * sizeof(char));
-    //int length = 321;
+    int length = 0;
+
     switch (token.type)
     {
     case TOKEN_BEGIN:
         output[0] = '\0';
         break;
     case TOKEN_METHOD:
-        
+        length = strlen(token.method);
+        strcpy(output, token.method);
+        output[length] = ' ';
+        output[length + 1] = '\0';
         break;
     case TOKEN_URI:
-        
+        length = strlen(token.path);
+        strcpy(output, token.path);
+        output[length] = ' ';
+        output[length + 1] = '\0';
         break;
     case TOKEN_VERSION:
-        
+        strcpy(output, "HTTP/1.1\r\n");
         break;
     case TOKEN_HEADER_FIELD:
-        
+        length = strlen(token.fieldName);
+        strcpy(output, token.fieldName);
+        output[length] = ':';
+        length++;
+        output[length] = '\0';
+        strcat(token.fieldValue, "\r\n");
+        length += strlen(token.fieldValue);
+        strcat(output, token.fieldValue);
+        output[length] = '\0';
         break;
     case TOKEN_BODY:
-        
+        length = strlen((const char *)token.body);
+        strcpy(output, (const char *)token.body);
+        output[length] = '\0';
         break;
     case TOKEN_END:
         output[0] = '\0';

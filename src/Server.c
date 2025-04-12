@@ -19,6 +19,7 @@ int main()
 
     struct sockaddr_in server;
 
+
     WSADATA wsa;
 
     if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
@@ -34,7 +35,8 @@ int main()
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( 8888 );
 
-    setupSocket(&server);
+    (void)server;
+    //setupSocket(&server);
 
     WSACleanup();
 

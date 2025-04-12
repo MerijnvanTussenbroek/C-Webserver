@@ -29,10 +29,10 @@ char* processRequest(Token* request)
 {
     printf("\nbegin processing request");
 
-    char* method = request[0].method;
+    char* method = request[1].method;
     char* response = malloc(4096);
 
-    if(request[2].integerValue != 1.1)
+    if(request[3].integerValue != 1.1)
     {
         strcpy(response,
         "HTTP/1.1 505 HTTP Version Not Supported\r\n" 
@@ -98,7 +98,7 @@ void OPTIONSRequest(Token* request,char* response)
 
 void GETRequest(Token* request, char* response)
 {
-    Token URI = request[1];
+    Token URI = request[2];
 
     char* fileType = getFileType(URI.path);
     char* connectedFileType = connectFileType(fileType);
@@ -137,7 +137,7 @@ void GETRequest(Token* request, char* response)
 
 void HEADRequest(Token* request, char* response)
 {
-    Token URI = request[1];
+    Token URI = request[2];
 
     char* fileType = getFileType(URI.path);
     char* connectedFileType = connectFileType(fileType);    
@@ -175,28 +175,33 @@ void HEADRequest(Token* request, char* response)
 
 void POSTRequest(Token* request, char* response)
 {
-
+    (void)request;
+    (void)response;
 }
 
 void PUTRequest(Token* request, char* response)
 {
-
+    (void)request;
+    (void)response;
 }
 
 void DELETERequest(Token* request, char* response)
 {
-    
+    (void)request;
+    (void)response;
 }
 
 void TRACERequest(Token* request, char* response)
 {
     char* echo = malloc(10000 * sizeof(char));
+    echo[0] = '\0';
     int length = 0;
 
     for(int i = 0; request[i].type != TOKEN_END; i++)
     {
         char* s = stringifyToken(request[i]);
-        strcpy(echo, s);
+        strcat(echo, s);
+        length++;
         length += strlen(s);
         free(s);
     }
@@ -204,6 +209,8 @@ void TRACERequest(Token* request, char* response)
     echo[length] = '\0';
 
     echo = realloc(echo, strlen(echo) + 1);
+
+    echo[length] = '\0';
 
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
