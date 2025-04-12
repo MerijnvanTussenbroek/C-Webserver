@@ -175,20 +175,100 @@ void HEADRequest(Token* request, char* response)
 
 void POSTRequest(Token* request, char* response)
 {
-    (void)request;
-    (void)response;
+    Token URI = request[2];
+
+    Token* bodyPointer = findToken(request, TOKEN_BODY);
+    Token bodyToken = *bodyPointer;
+
+    int responseInfo = postFile(URI.path, bodyToken.body);
+
+    if(responseInfo == 1)
+    {
+        strcpy(response,
+            "HTTP/1.1 204 OK\r\n"
+        );
+    }
+    else
+    {
+        strcpy(response,
+            "HTTP/1.1 500 Internal Server Error\r\n"
+            "Content-Type: text/plain\r\n"
+            "\r\n"
+            "Could not write file to disk.\r\n"
+        );
+    }
 }
 
 void PUTRequest(Token* request, char* response)
 {
-    (void)request;
-    (void)response;
+    Token URI = request[2];
+
+    Token* bodyPointer = findToken(request, TOKEN_BODY);
+    Token bodyToken = *bodyPointer;
+
+    int responseInfo = putFile(URI.path, bodyToken.body);
+
+    if(responseInfo == 1)
+    {
+        strcpy(response,
+            "HTTP/1.1 204 OK\r\n"
+        );
+    }
+    else
+    {
+        strcpy(response,
+            "HTTP/1.1 500 Internal Server Error\r\n"
+            "Content-Type: text/plain\r\n"
+            "\r\n"
+            "Could not write file to disk.\r\n"
+        );
+    }
 }
 
 void DELETERequest(Token* request, char* response)
 {
-    (void)request;
-    (void)response;
+    Token URI = request[2];
+
+    int responseInfo = deleteFile(URI.path);
+
+    if(responseInfo == 1)
+    {
+        strcpy(response,
+            "HTTP/1.1 204 No Content\r\n"
+        );
+    }
+    else
+    {
+        if(responseInfo == -1)
+        {
+            strcpy(response,
+                "HTTP/1.1 404 Not Found\r\n"
+                "Content-Type: text/plain\r\n"
+                "Content-Length: 27\r\n"
+                "\r\n"
+                "Resource not found: /item/42\r\n"
+            );
+        }
+        if(responseInfo == -2)
+        {
+            strcpy(response,
+                "HTTP/1.1 409 Conflict\e\n"
+                "Content-Type: text/plain\r\n"
+                "Content-Length: 43\r\n"
+                "\r\n"
+                "Cannot delete item because it is in use.\r\n"
+            );
+        }
+        if(responseInfo == -3)
+        {
+            strcpy(response,
+                "HTTP/1.1 403 Method Not Allowed\r\n"
+                "Content-Type: text/plain\r\n"
+                "\r\n"
+                "Cannot delete item because of lack of permission"
+            );
+        }
+    }
 }
 
 void TRACERequest(Token* request, char* response)

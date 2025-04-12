@@ -4,16 +4,15 @@
 #include <stdlib.h>
 
 #include <string.h>
+#include<time.h>
 
-char* standardPath = "C:/Users/merij/Desktop/webserverFiles";
-
-
+char* standardPath = "./serverFiles";
 
 char* openFile(char* path)
 {
     FILE *file;
 
-    char* fullPath = malloc(200 * sizeof(char));
+    char* fullPath = malloc(100 * sizeof(char));
 
     strcpy(fullPath, standardPath);
 
@@ -33,7 +32,9 @@ char* openFile(char* path)
     if(file == NULL)
     {
         //the file doesn't exist
-        printf("\nThe file doesn't exist.");
+        perror("\nThis error happened in the openFile function");
+        printf("\n %s \n", fullPath);
+
         return NULL;
     }
 
@@ -54,8 +55,8 @@ char* openFile(char* path)
     //We continuously get the next line in the file and concatonate it into the output char array
     while(fgets(nextLine, length, file))
     {
-        printf("\ngetting data");
-        printf("%s", nextLine);
+        //printf("\ngetting data");
+        //printf("%s", nextLine);
         strcat(fileInput, nextLine);
     }
 
@@ -74,6 +75,7 @@ char* openFile(char* path)
 
 char* getFileType(char* path)
 {
+    //int length = sizeof(path);
 
     if(strcmp(path, "/") == 0)
     {
@@ -136,38 +138,119 @@ char* connectFileType(char* fileType)
         type[23] = '\0';
         return type;
     }
-
-    char* type = malloc(6);
-    strcpy(type, "error");
-    type[5] = '\0';
-    return type;
+    return "error";
 }
 
-void deleteFile(char* path)
+int deleteFile(char* path)
 {
     //this should only be allowed if the user has proper authentication
     printf("\ndeleted file");
-    remove(path);
+
+    int removal = remove(path);
+
+    if(removal == 0)
+    {
+        return 1;
+    }
+
+    perror("something went wrong in the deleteFile function");
+
+    if(removal == ENOENT)
+    {
+        //The file doesn't exist
+        return -1;
+    }
+    if(removal == EBUSY)
+    {
+        //The file is being used
+        return -2;
+    }
+    if(removal == EACCES)
+    {
+        //permission denied
+        return -3;
+    }
+
+    return 0;
 }
 
-void postFile(char* path, char* data)
+int postFile(char* path, char* data)
 {
+    //We override anything that might have been in the file previously
     FILE* file;
-    file = fopen(path, "w");
-    fseek(file, 0, SEEK_END);
+    char* fullPath = malloc(100 * sizeof(char));
+    strcpy(fullPath, standardPath);
+    fullPath[strlen(standardPath)] = '\0';
+
+    strcat(fullPath, path);
+
+    char* lastPart = generateFileName();
+
+    strcat(fullPath, lastPart);
+
+    file = fopen(fullPath, "w");
+
+    if(file == NULL)
+    {
+        perror("\nAn error happened opening a file in the postFile function");
+        return 0;
+    }
 
     fprintf(file, data);
 
+    free(lastPart);
+    free(fullPath);
+
     fclose(file);
+
+    return 1;
 }
 
-void putFile(char* path, char* data)
+int putFile(char* path, char* data)
 {
     FILE* file;
-    file = fopen(path, "w");
-    fseek(file, 0, SEEK_END);
+
+    char* fullPath = malloc(100 * sizeof(char));
+    strcpy(fullPath, standardPath);
+    fullPath[strlen(standardPath)] = '\0';
+    strcat(fullPath, path);
+
+    file = fopen(fullPath, "a");
+
+    if(file == NULL)
+    {
+        perror("\nAn error happened opening a file in the putFile function");
+        return 0;
+    }
 
     fprintf(file, data);
 
+    free(fullPath);
+
     fclose(file);
+    return 1;
+}
+
+char* generateFileName()
+{
+    char* name = malloc(100 * sizeof(char));
+
+    char* time = timestampGenerator;
+
+    sprintf("upload_%s", time);
+
+    return name;
+}
+
+char* timestampGenerator()
+{
+    //This function is used for when a POST request does not provide a name, and we must make one
+    //The name of the file will be upload_<timestamp>
+
+    time_t current_time = time(NULL); // Get current time
+    struct tm *utc_time = gmtime(&current_time);
+    char* time = malloc(100 * sizeof(char));
+    strftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S", utc_time);
+
+    return time;
 }

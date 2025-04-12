@@ -35,8 +35,7 @@ int main()
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( 8888 );
 
-    (void)server;
-    //setupSocket(&server);
+    setupSocket(&server);
 
     WSACleanup();
 
