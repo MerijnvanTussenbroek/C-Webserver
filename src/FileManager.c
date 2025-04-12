@@ -4,22 +4,28 @@
 #include <stdlib.h>
 
 #include <string.h>
-#include<time.h>
+#include <time.h>
+
+char* generateFileName();
+char* timestampGenerator();
 
 char* standardPath = "./serverFiles";
 
+//This is for processing GET requests
 char* openFile(char* path)
 {
     FILE *file;
 
+    //We first generate a string for the full path
     char* fullPath = malloc(100 * sizeof(char));
 
     strcpy(fullPath, standardPath);
 
+    //We check if the path is the home page, which is index.html in standard webservers
     if(strcmp(path, "/") == 0)
     {
         strcat(fullPath, "/index.html");
-        printf("%s", fullPath);
+        printf("\n%s", fullPath);
     }
     else
     {
@@ -33,7 +39,7 @@ char* openFile(char* path)
     {
         //the file doesn't exist
         perror("\nThis error happened in the openFile function");
-        printf("\n %s \n", fullPath);
+        printf("\n%s \n", fullPath);
 
         return NULL;
     }
@@ -55,8 +61,6 @@ char* openFile(char* path)
     //We continuously get the next line in the file and concatonate it into the output char array
     while(fgets(nextLine, length, file))
     {
-        //printf("\ngetting data");
-        //printf("%s", nextLine);
         strcat(fileInput, nextLine);
     }
 
@@ -79,6 +83,7 @@ char* getFileType(char* path)
 
     if(strcmp(path, "/") == 0)
     {
+        //If the path is the homepage, we need to return html as this will be index.html
         char* fileType = malloc(5);
         fileType[0]= '\0';
         strcpy(fileType, "html");
@@ -86,6 +91,7 @@ char* getFileType(char* path)
     }
     else
     {
+        //We begin looking for the . in file extensions index(.)html
         char* input = path;
         while(*input != '.')
         {
@@ -94,19 +100,21 @@ char* getFileType(char* path)
 
         input++;
 
+        //We save the position of the first character, which is 1 spot after the dot
         char* beginning = input;
 
+        //We continue until we get to the end of the string
         while(*input != '\0')
         {
             input++;
         }
 
-        //input--;
-
+        //We calculate the size
         size_t length = input - beginning;
 
         char* fileType = malloc((length + 1) * sizeof(char));
 
+        //And take it from the path
         strncpy(fileType, beginning, length);
 
         fileType[length] = '\0';
@@ -117,6 +125,7 @@ char* getFileType(char* path)
 
 char* connectFileType(char* fileType)
 {
+    //Here, we connect the filetype to what needs to be in the HTTP response
     if(strcmp(fileType, "html") == 0)
     {
         char* type = malloc(11);
@@ -153,6 +162,7 @@ int deleteFile(char* path)
         return 1;
     }
 
+    //If the remove function didn't return 0, it means something went wrong
     perror("something went wrong in the deleteFile function");
 
     if(removal == ENOENT)
@@ -171,6 +181,7 @@ int deleteFile(char* path)
         return -3;
     }
 
+    //If it is none of these, we return 0
     return 0;
 }
 
@@ -184,6 +195,7 @@ int postFile(char* path, char* data)
 
     strcat(fullPath, path);
 
+    //We generate a filename
     char* lastPart = generateFileName();
 
     strcat(fullPath, lastPart);
@@ -196,6 +208,7 @@ int postFile(char* path, char* data)
         return 0;
     }
 
+    //We write the data to the created file
     fprintf(file, data);
 
     free(lastPart);
@@ -215,6 +228,7 @@ int putFile(char* path, char* data)
     fullPath[strlen(standardPath)] = '\0';
     strcat(fullPath, path);
 
+    //Here, we specifically go for a, as this will append/update the file with whatever we want
     file = fopen(fullPath, "a");
 
     if(file == NULL)
@@ -233,11 +247,14 @@ int putFile(char* path, char* data)
 
 char* generateFileName()
 {
+    //Here, we generate filenames for POST requests
     char* name = malloc(100 * sizeof(char));
 
-    char* time = timestampGenerator;
+    char* time = timestampGenerator();
 
     sprintf("upload_%s", time);
+
+    free(time);
 
     return name;
 }

@@ -29,6 +29,7 @@ char* processRequest(Token* request)
 {
     printf("\nbegin processing request");
 
+    //We retrieve the method from the list and allocate memory for a response
     char* method = request[1].method;
     char* response = malloc(4096);
 
@@ -45,9 +46,10 @@ char* processRequest(Token* request)
         return response;
     }
     
+    //We check what method was used
     if(strcmp(method, "OPTIONS") == 0)
     {
-        OPTIONSRequest(request, response);
+        OPTIONSRequest(response);
     }
     if(strcmp(method, "GET") == 0)
     {
@@ -84,10 +86,9 @@ char* processRequest(Token* request)
 }
 
 
-void OPTIONSRequest(Token* request,char* response)
+void OPTIONSRequest(char* response)
 {
-    (void)request;
-
+    //We simply return back all the options
     strcpy(
         response,
         "HTTP/1.1 204 No Content\r\n"
@@ -98,14 +99,17 @@ void OPTIONSRequest(Token* request,char* response)
 
 void GETRequest(Token* request, char* response)
 {
+    //We retrieve the file path
     Token URI = request[2];
 
+    //We get the filetype, connect it to what needs to get into the HTTP response, and retrieve the file's content
     char* fileType = getFileType(URI.path);
     char* connectedFileType = connectFileType(fileType);
     char* body = openFile(URI.path);
 
     if(body == NULL)
     {
+        //The file doesn't exist, we return the famous 404 error
         strcpy(response,
         "HTTP/1.1 404 Not Found\r\n" 
         "Content-Type: text/plain\r\n"
@@ -113,12 +117,16 @@ void GETRequest(Token* request, char* response)
         "\r\n"
         "Page not found."
         );
+
+        free(fileType);
+        free(connectedFileType);
     
         return;
     }
 
     size_t size = strlen(body);
 
+    //We print the contents into the response
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s\r\n"
@@ -137,14 +145,17 @@ void GETRequest(Token* request, char* response)
 
 void HEADRequest(Token* request, char* response)
 {
+    //We retrieve the filepath
     Token URI = request[2];
 
+    //We get the file type and its associated HTTP response, and retrieve the files content
     char* fileType = getFileType(URI.path);
     char* connectedFileType = connectFileType(fileType);    
     char* body = openFile(URI.path);
 
     if(body == NULL)
     {
+        //If the file was not found, we return a 404 error
         strcpy(response,
         "HTTP/1.1 404 Not Found\r\n" 
         "Content-Type: text/plain\r\n"
@@ -152,12 +163,16 @@ void HEADRequest(Token* request, char* response)
         "\r\n"
         "Page not found."
         );
+
+        free(fileType);
+        free(connectedFileType);
     
         return;
     }
 
     size_t size = strlen(body);
 
+    //We put the contents into the response
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s\r\n"
@@ -175,21 +190,26 @@ void HEADRequest(Token* request, char* response)
 
 void POSTRequest(Token* request, char* response)
 {
+    //We retrieve the filepath
     Token URI = request[2];
 
+    //We specifically retrieve the body, which is what will be put into the file
     Token* bodyPointer = findToken(request, TOKEN_BODY);
     Token bodyToken = *bodyPointer;
 
-    int responseInfo = postFile(URI.path, bodyToken.body);
+    //We let the filemanager handle the rest
+    int responseInfo = postFile(URI.path, (char*)bodyToken.body);
 
     if(responseInfo == 1)
     {
+        //The file has been put into the system
         strcpy(response,
             "HTTP/1.1 204 OK\r\n"
         );
     }
     else
     {
+        //Something went wrong while putting the file in the system
         strcpy(response,
             "HTTP/1.1 500 Internal Server Error\r\n"
             "Content-Type: text/plain\r\n"
@@ -201,21 +221,26 @@ void POSTRequest(Token* request, char* response)
 
 void PUTRequest(Token* request, char* response)
 {
+    //We retrieve the filepath
     Token URI = request[2];
 
+    //We specifcially retrieve the body token, as this will be what will be appended in the file
     Token* bodyPointer = findToken(request, TOKEN_BODY);
     Token bodyToken = *bodyPointer;
 
-    int responseInfo = putFile(URI.path, bodyToken.body);
+    //We let the file manager do the rest
+    int responseInfo = putFile(URI.path, (char*)bodyToken.body);
 
     if(responseInfo == 1)
     {
+        //Everything went well
         strcpy(response,
             "HTTP/1.1 204 OK\r\n"
         );
     }
     else
     {
+        //An error has occured
         strcpy(response,
             "HTTP/1.1 500 Internal Server Error\r\n"
             "Content-Type: text/plain\r\n"
@@ -227,12 +252,15 @@ void PUTRequest(Token* request, char* response)
 
 void DELETERequest(Token* request, char* response)
 {
+    //We retrieve the filepath
     Token URI = request[2];
 
+    //We let the fileManager delete the file
     int responseInfo = deleteFile(URI.path);
 
     if(responseInfo == 1)
     {
+        //Everything went according to plan
         strcpy(response,
             "HTTP/1.1 204 No Content\r\n"
         );
@@ -241,6 +269,7 @@ void DELETERequest(Token* request, char* response)
     {
         if(responseInfo == -1)
         {
+            //The file could not be found
             strcpy(response,
                 "HTTP/1.1 404 Not Found\r\n"
                 "Content-Type: text/plain\r\n"
@@ -251,6 +280,7 @@ void DELETERequest(Token* request, char* response)
         }
         if(responseInfo == -2)
         {
+            //The file is currently being used
             strcpy(response,
                 "HTTP/1.1 409 Conflict\e\n"
                 "Content-Type: text/plain\r\n"
@@ -261,6 +291,7 @@ void DELETERequest(Token* request, char* response)
         }
         if(responseInfo == -3)
         {
+            //The requester does not have the permission to delete the file
             strcpy(response,
                 "HTTP/1.1 403 Method Not Allowed\r\n"
                 "Content-Type: text/plain\r\n"
@@ -273,12 +304,14 @@ void DELETERequest(Token* request, char* response)
 
 void TRACERequest(Token* request, char* response)
 {
+    //We allocate memory to reconstruct the original request
     char* echo = malloc(10000 * sizeof(char));
     echo[0] = '\0';
     int length = 0;
 
     for(int i = 0; request[i].type != TOKEN_END; i++)
     {
+        //We iterate over the request to reconstruct it in the echo string
         char* s = stringifyToken(request[i]);
         strcat(echo, s);
         length++;
@@ -288,10 +321,12 @@ void TRACERequest(Token* request, char* response)
 
     echo[length] = '\0';
 
+    //We reallocate memory as required
     echo = realloc(echo, strlen(echo) + 1);
 
     echo[length] = '\0';
 
+    //We put the cho in the response
     snprintf(response, 4096,
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: message/http\r\n"
@@ -308,6 +343,7 @@ void TRACERequest(Token* request, char* response)
 
 void CONNECTRequest(Token* request, char* response)
 {
+    //This webserver will not support the CONNECT HTTP request
     (void)request;
 
     strcpy(
@@ -321,7 +357,7 @@ void CONNECTRequest(Token* request, char* response)
     );
 }
 
-
+//a function to find a token based on its type
 Token* findToken(Token* tokens, myTokenType identifier)
 {
     Token* list = tokens;
@@ -337,6 +373,7 @@ Token* findToken(Token* tokens, myTokenType identifier)
     return NULL;
 }
 
+//a function to find a headertoken based on the headers name
 Token* findHeaderToken(Token* tokens, char* identifier)
 {
     Token* list = tokens;

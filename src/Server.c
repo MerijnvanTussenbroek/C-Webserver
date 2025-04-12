@@ -91,6 +91,8 @@ void setupSocket(struct sockaddr_in *serverPointer)
                 //reply could not send
                 printf("\nReply could not be sent");
             }
+            deleteTokens(request);
+            free(request);
             free(response);
         }
         else

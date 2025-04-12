@@ -56,7 +56,7 @@ SOCKET initializeAcceptingSocket(struct sockaddr_in client, SOCKET listeningSock
 }
 
 //closes the sockets
-//naming was done for convention
+//naming was done for clarity
 void closeListeningSocket(SOCKET s){
 
     printf("\nclosing listening socket");

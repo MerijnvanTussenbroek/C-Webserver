@@ -97,32 +97,33 @@ void printToken(Token token)
     switch (token.type)
     {
     case TOKEN_BEGIN:
-        printf("Begin \n");
+        printf("\nBegin");
         break;
     case TOKEN_METHOD:
-        printf("Method: %s \n", token.method);
+        printf("\nMethod: %s", token.method);
         break;
     case TOKEN_URI:
-        printf("Uri: %s \n", token.path);
+        printf("\nUri: %s", token.path);
         break;
     case TOKEN_VERSION:
-        printf("Version: %f \n", token.integerValue);
+        printf("\nVersion: %f ", token.integerValue);
         break;
     case TOKEN_HEADER_FIELD:
-        printf("Header-fields %s : %s \n", token.fieldName, token.fieldValue);
+        printf("\nHeader-fields %s : %s", token.fieldName, token.fieldValue);
         break;
     case TOKEN_BODY:
-        printf("Body: %s \n", token.body);
+        printf("\nBody: %s", token.body);
         break;
     case TOKEN_END:
-        printf("end \n");
+        printf("\nend");
         break;
-        printf("No token");
+        printf("\nNo token");
     default:
         break;
     }
 }
 
+//A function that servers as the toString() function for a token
 char* stringifyToken(Token token)
 {
     char* output = malloc(321 * sizeof(char));
@@ -179,9 +180,13 @@ char* stringifyToken(Token token)
 
 void deleteTokens(Token* tokens)
 {
+    //This is specifically to free any body tokens of their memory
     for(int i = 0; tokens[i].type != TOKEN_END; i++)
     {
-
+        if(tokens[i].type == TOKEN_BODY)
+        {
+            free(tokens[i].body);
+        }
     }
 }
 
@@ -366,6 +371,6 @@ char* checkIfInList(char** methods, int numOfMethods, char* element)
 void somethingWentWrong(char* location)
 {
     printf("\nSomething went wrong");
-    printf("%s", location);
+    printf("\n%s", location);
     getchar();
 }
