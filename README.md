@@ -3,7 +3,7 @@ This is a simple static webserver written in C
 
 ## Description
 
-This is a simple static webserver written in C, using standard libraries, making it so you're able to perform all HTTP 1.1 requests (POST, PUT, GET, TRACE, OPTIONS, CONNECT, DELETE).
+This is a simple static webserver written in C, using standard libraries, making it so you're able to perform almost all HTTP 1.1 requests (POST, PUT, GET, TRACE, OPTIONS, DELETE).
 
 ## Getting Started
 ### Dependencies
