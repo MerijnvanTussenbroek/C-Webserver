@@ -1,4 +1,4 @@
-# C-Webserver WIP
+# C-Webserver
 This is a simple static webserver written in C
 
 ## Description
